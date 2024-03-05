@@ -14,8 +14,9 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'info', 'owner', 'quantity', 'sub_parts']
 
     def create(self, validated_data):
-        sub_parts_data = validated_data.pop('sub_parts')
+        sub_parts_data = validated_data.pop('sub_parts', None)  # Use None as default if 'sub_parts' not in request
         product = Product.objects.create(**validated_data)
-        for sub_part_data in sub_parts_data:
-            SubPart.objects.create(main_product=product, **sub_part_data)
+        if sub_parts_data:  # Only proceed if sub_parts_data is not None
+            for sub_part_data in sub_parts_data:
+                SubPart.objects.create(main_product=product, **sub_part_data)
         return product
