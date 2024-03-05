@@ -25,7 +25,7 @@ class Company(AbstractUser):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=250)
     description = models.TextField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='products')
 
