@@ -1,22 +1,12 @@
 from rest_framework import serializers
-from .models import Product, SubPart
-
-class SubPartSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SubPart
-        fields = ['id', 'product', 'quantity', 'hash']
+from .models import Product
 
 class ProductSerializer(serializers.ModelSerializer):
-    sub_parts = SubPartSerializer(many=True)
-
     class Meta:
         model = Product
-        fields = ['id', 'info', 'owner', 'quantity', 'sub_parts']
+        fields = ['id', 'info', 'owner', 'quantity', 'subpart1_product_id', 'subpart1_quantity', 'subpart1_hash', 'subpart2_product_id', 'subpart2_quantity', 'subpart2_hash', 'subpart3_product_id', 'subpart3_quantity', 'subpart3_hash']
+        read_only_fields = ['subpart1_hash', 'subpart2_hash', 'subpart3_hash']  # Hashes are generated automatically
 
     def create(self, validated_data):
-        sub_parts_data = validated_data.pop('sub_parts', None)  # Use None as default if 'sub_parts' not in request
         product = Product.objects.create(**validated_data)
-        if sub_parts_data:  # Only proceed if sub_parts_data is not None
-            for sub_part_data in sub_parts_data:
-                SubPart.objects.create(main_product=product, **sub_part_data)
         return product
