@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  front-end:
+    container_name: front-end
+    build:
+      context: .
+      dockerfile: docker/front-end/Dockerfile
+    volumes:
+      - node_modules:/code/front-end/node_modules
+    ports:
+      - 3000:3000
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - static:/code/static
+    ports:
+      - 80:80
   web:
     build: .
     command: gunicorn traceable_ledger.wsgi:application --bind 0.0.0.0:8000
@@ -24,3 +42,5 @@ services:
 
 volumes:
   postgres_data:
+  static:
+  node_modules:
