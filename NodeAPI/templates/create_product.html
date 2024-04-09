@@ -37,6 +37,8 @@
         <!-- Calculate Result Button -->
         <div class="form-group mt-3">
             <button type="button" id="calculateResult" class="btn btn-info">Calculate Result</button>
+            <!-- Confirm Purchase Button -->
+            <button type="button" id="confirmPurchase" class="btn btn-warning ml-2">Confirm Purchase</button>
         </div>
         
         <!-- Display Calculated Results -->
@@ -61,10 +63,11 @@
                     if (unitsToBuy > unitsAvailable) {
                         alert("Error: Your request exceeds the amount available from the subcontractor.");
                     } else {
+                        const newSubPartUnits = unitsAvailable - unitsToBuy; // Calculate new subpart units
                         const subpartHtml = `
                             <div class="alert alert-success">
-                                <p>Name: ${data.name}, Units Available: ${unitsToBuy}, CO2/unit: ${data.co2_per_unit}, Units Needed per Product: ${unitsNeededPerProduct}</p>
-                                <input type="hidden" name="subparts[]" value='${JSON.stringify({...data, units_bought: unitsToBuy, units_needed_per_product: unitsNeededPerProduct})}'>
+                                <p>Name: ${data.name}, Units Bought: ${unitsToBuy}, New Units Available (after purchase): ${newSubPartUnits}, CO2/unit: ${data.co2_per_unit}, Units Needed per Product: ${unitsNeededPerProduct}</p>
+                                <input type="hidden" name="subparts[]" value='${JSON.stringify({...data, units_bought: unitsToBuy, units_needed_per_product: unitsNeededPerProduct, new_units_available: newSubPartUnits, api_url: apiUrl})}'>
                             </div>
                         `;
                         $('#subpartsSection').append(subpartHtml);
@@ -73,36 +76,68 @@
                     $('#unitsNeeded').val('');
                     $('#unitsToBuy').val('');
                     $('#subpartApiUrl').val('');
+                },
+                error: function() {
+                    alert("Failed to fetch data from the API.");
                 }
             });
         });
 
         $('#calculateResult').click(function() {
-        let minUnits = null;
-        let totalCO2 = 0;
+            let minUnits = null;
+            let totalCO2 = 0;
 
-        $('input[name="subparts[]"]').each(function() {
-            const subpart = JSON.parse($(this).val());
-            const unitsAvailable = subpart.units_bought;
-            const unitsNeededPerProduct = subpart.units_needed_per_product;
-            const co2PerUnit = subpart.co2_per_unit;
+            $('input[name="subparts[]"]').each(function() {
+                const subpart = JSON.parse($(this).val());
+                const unitsAvailable = subpart.units_bought;
+                const unitsNeededPerProduct = subpart.units_needed_per_product;
+                const co2PerUnit = subpart.co2_per_unit;
 
-            const productUnitsFromSubpart = unitsAvailable / unitsNeededPerProduct;
-            if (minUnits === null || productUnitsFromSubpart < minUnits) {
-                minUnits = productUnitsFromSubpart;
+                const productUnitsFromSubpart = unitsAvailable / unitsNeededPerProduct;
+                if (minUnits === null || productUnitsFromSubpart < minUnits) {
+                    minUnits = productUnitsFromSubpart;
+                }
+
+                totalCO2 += unitsNeededPerProduct * co2PerUnit;
+            });
+
+            // Populate the form's number of units and CO2 per unit fields with the calculated results
+            if(minUnits !== null) {
+                $('#id_number_of_units').val(minUnits.toFixed(0));
             }
-
-            totalCO2 += unitsNeededPerProduct * co2PerUnit;
+            $('#id_co2_per_unit').val(totalCO2.toFixed(0));
         });
 
-        // Populate the form's number of units and CO2 per unit fields with the calculated results
-        if(minUnits !== null) {
-            $('#id_number_of_units').val(minUnits.toFixed(2));
-        }
-        $('#id_co2_per_unit').val(totalCO2.toFixed(2));
-    });
-});
+        $('#confirmPurchase').click(function() {
+        // Iterate through each subpart added to the form
+        $('input[name="subparts[]"]').each(function() {
+            const subpartInfo = JSON.parse($(this).val());
+            const apiUrl = subpartInfo.api_url; // The API URL for updating the subpart
+            const newUnitsAvailable = subpartInfo.new_units_available; // The new units available after purchase
 
+            // Perform the API call to update the subpart
+            $.ajax({
+                url: apiUrl,
+                type: 'PATCH', // Assuming PATCH is used for partial updates
+                contentType: 'application/json',
+                //headers: {'X-CSRFToken': getCookie('csrftoken')},
+                data: JSON.stringify({
+                    number_of_units: newUnitsAvailable
+                }),
+                success: function(response) {
+                    console.log("Subpart updated successfully", response);
+                    // You may want to provide feedback to the user or update the UI accordingly
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error updating subpart:", error);
+                    // Handle errors, possibly providing feedback to the user
+                }
+            });
+        });
+    });
+
+     
+    });
 </script>
 
 </body>
