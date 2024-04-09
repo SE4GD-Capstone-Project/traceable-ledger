@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from rest_framework import viewsets
 from .models import Product
 from .serializers import ProductSerializer
@@ -52,7 +53,7 @@ def create_product(request):
                     units_to_buy=subpart_data['units_bought']
                 )
 
-            return redirect('')  # Redirect as appropriate
+            return redirect('../')  # Redirect as appropriate
     else:
         form = ProductForm()
 
