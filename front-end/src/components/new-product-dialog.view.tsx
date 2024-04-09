@@ -69,7 +69,7 @@ export default function NewProductDialog() {
           <DialogHeader>
             <DialogTitle>Create new product</DialogTitle>
             <DialogDescription>
-              Add product's information here. Click create when you're done.
+              Add product information here. Click create when you are done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

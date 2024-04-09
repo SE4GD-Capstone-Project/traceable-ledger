@@ -144,3 +144,5 @@ django_heroku.settings(locals())
 
 # settings.py
 #LOGIN_REDIRECT_URL = 'product-list'
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
