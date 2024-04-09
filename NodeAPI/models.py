@@ -1,30 +1,34 @@
 from django.db import models
-import hashlib
 
 class Product(models.Model):
-    info = models.TextField()
-    owner = models.TextField()
-    quantity = models.IntegerField()
-    # Subpart 1
-    subpart1_product_id = models.IntegerField(null=True, blank=True)
-    subpart1_quantity = models.IntegerField(null=True, blank=True)
-    subpart1_hash = models.CharField(max_length=64, blank=True, editable=False)
-    # Subpart 2
-    subpart2_product_id = models.IntegerField(null=True, blank=True)
-    subpart2_quantity = models.IntegerField(null=True, blank=True)
-    subpart2_hash = models.CharField(max_length=64, blank=True, editable=False)
-    # Subpart 3
-    subpart3_product_id = models.IntegerField(null=True, blank=True)
-    subpart3_quantity = models.IntegerField(null=True, blank=True)
-    subpart3_hash = models.CharField(max_length=64, blank=True, editable=False)
+    name = models.CharField(max_length=100)
+    number_of_units = models.IntegerField(help_text="Number of units available")
+    co2_per_unit = models.FloatField(help_text="CO2 emitted per unit")
 
-    def save(self, *args, **kwargs):
-        # Calculate hashes for each subpart that exists
-        if self.subpart1_product_id and self.subpart1_quantity:
-            self.subpart1_hash = hashlib.sha256(f'{self.subpart1_product_id}-{self.subpart1_quantity}'.encode()).hexdigest()
-        if self.subpart2_product_id and self.subpart2_quantity:
-            self.subpart2_hash = hashlib.sha256(f'{self.subpart2_product_id}-{self.subpart2_quantity}'.encode()).hexdigest()
-        if self.subpart3_product_id and self.subpart3_quantity:
-            self.subpart3_hash = hashlib.sha256(f'{self.subpart3_product_id}-{self.subpart3_quantity}'.encode()).hexdigest()
+    def __str__(self):
+        return self.name
 
-        super().save(*args, **kwargs)
+class SubContractor(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+    # Include other fields as necessary for subcontractors
+
+    def __str__(self):
+        return self.name
+
+class Subpart(models.Model):
+    name = models.CharField(max_length=100)
+    co2_footprint = models.FloatField(help_text="CO2 footprint per unit")
+    contractor = models.ForeignKey(SubContractor, on_delete=models.CASCADE, blank=True, null=True)
+    # You might include other fields relevant to subparts, such as a unit price, etc.
+
+    def __str__(self):
+        return self.name
+
+class ProductSubpart(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_subparts')
+    subpart = models.ForeignKey(Subpart, on_delete=models.CASCADE)
+    quantity_needed_per_unit = models.FloatField(help_text="Quantity of the subpart needed to make one unit of product")
+    units_to_buy = models.FloatField(help_text="Number of units to buy from the subcontractor")
+
+    def __str__(self):
+        return f"{self.subpart.name} for {self.product.name}"

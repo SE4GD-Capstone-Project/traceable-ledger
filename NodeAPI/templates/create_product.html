@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Product</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2>Create a New Product</h2>
+
+    <form method="post" id="productForm" class="mt-4">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <div id="subpartsSection" class="mb-3">
+            <!-- Subparts will be added here -->
+        </div>
+        <div class="form-row">
+            <div class="col">
+                <input type="number" class="form-control" id="unitsNeeded" placeholder="Units needed per a unit of product">
+            </div>
+            <div class="col">
+                <input type="number" class="form-control" id="unitsToBuy" placeholder="Units to buy from subcontractor">
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" id="subpartApiUrl" placeholder="Subpart API URL">
+            </div>
+            <div class="col-auto">
+                <button type="button" id="addSubpart" class="btn btn-primary">Add Subpart</button>
+            </div>
+        </div>
+        
+        <!-- Calculate Result Button -->
+        <div class="form-group mt-3">
+            <button type="button" id="calculateResult" class="btn btn-info">Calculate Result</button>
+        </div>
+        
+        <!-- Display Calculated Results -->
+        <div id="calculatedResults" class="mb-3"></div>
+        
+        <button type="submit" class="btn btn-success mt-3">Save Product</button>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#addSubpart').click(function() {
+            const apiUrl = $('#subpartApiUrl').val();
+            const unitsToBuy = parseFloat($('#unitsToBuy').val());
+            const unitsNeededPerProduct = parseFloat($('#unitsNeeded').val());
+
+            $.ajax({
+                url: apiUrl,
+                method: 'GET',
+                success: function(data) {
+                    const unitsAvailable = parseFloat(data.number_of_units);
+                    if (unitsToBuy > unitsAvailable) {
+                        alert("Error: Your request exceeds the amount available from the subcontractor.");
+                    } else {
+                        const subpartHtml = `
+                            <div class="alert alert-success">
+                                <p>Name: ${data.name}, Units Available: ${unitsToBuy}, CO2/unit: ${data.co2_per_unit}, Units Needed per Product: ${unitsNeededPerProduct}</p>
+                                <input type="hidden" name="subparts[]" value='${JSON.stringify({...data, units_bought: unitsToBuy, units_needed_per_product: unitsNeededPerProduct})}'>
+                            </div>
+                        `;
+                        $('#subpartsSection').append(subpartHtml);
+                    }
+
+                    $('#unitsNeeded').val('');
+                    $('#unitsToBuy').val('');
+                    $('#subpartApiUrl').val('');
+                }
+            });
+        });
+
+        $('#calculateResult').click(function() {
+        let minUnits = null;
+        let totalCO2 = 0;
+
+        $('input[name="subparts[]"]').each(function() {
+            const subpart = JSON.parse($(this).val());
+            const unitsAvailable = subpart.units_bought;
+            const unitsNeededPerProduct = subpart.units_needed_per_product;
+            const co2PerUnit = subpart.co2_per_unit;
+
+            const productUnitsFromSubpart = unitsAvailable / unitsNeededPerProduct;
+            if (minUnits === null || productUnitsFromSubpart < minUnits) {
+                minUnits = productUnitsFromSubpart;
+            }
+
+            totalCO2 += unitsNeededPerProduct * co2PerUnit;
+        });
+
+        // Populate the form's number of units and CO2 per unit fields with the calculated results
+        if(minUnits !== null) {
+            $('#id_number_of_units').val(minUnits.toFixed(2));
+        }
+        $('#id_co2_per_unit').val(totalCO2.toFixed(2));
+    });
+});
+
+</script>
+
+</body>
+</html>
