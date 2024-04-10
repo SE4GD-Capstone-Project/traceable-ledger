@@ -69,7 +69,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    'build/_next/static'
+    os.path.join(BASE_DIR, 'build/_next/static')
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
