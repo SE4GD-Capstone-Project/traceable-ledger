@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "npm run build && rm -rf ../build && mv out ../build"
+    "deploy": "npm run build && rm -rf ../staticfiles && mv out ../staticfiles"
   },
   "engines": {
     "npm": "10.5.1",
