@@ -1,4 +1,4 @@
-FROM python:3.9.13-slim
+FROM --platform=linux/amd64 python:3.9.13-slim
 
 RUN python3 -m venv /opt/venv/
 
