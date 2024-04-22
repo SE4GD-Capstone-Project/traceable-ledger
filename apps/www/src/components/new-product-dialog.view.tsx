@@ -45,7 +45,7 @@ export default function NewProductDialog() {
 
   const handleCreateButtonClick = React.useCallback(() => {
     if (typeof window !== "undefined") {
-      const origin = window.origin;
+      const origin = window.location.origin;
       fetch(`${urlHandler(origin)}/api/products/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

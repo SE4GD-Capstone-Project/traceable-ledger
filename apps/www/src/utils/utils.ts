@@ -1,6 +1,6 @@
 export default function urlHandler(path: string): string {
-  if (path.includes("herokuapp")) {
-    return path;
+  if (process.env.NODE_ENV === "production") {
+    return `${path}:8000`;
   }
-  return "http://0.0.0.0:8000";
+  return "http://localhost:8000";
 }

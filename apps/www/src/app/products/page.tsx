@@ -10,7 +10,7 @@ export default function Products() {
   const [products, setProducts] = React.useState<ProductType[]>();
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      const origin = window.origin;
+      const origin = window.location.origin;
       fetch(`${urlHandler(origin)}/api/products/`)
         .then((res) => res.json())
         .then((data) => {
