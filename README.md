@@ -1,14 +1,3 @@
-<p align="center">
-  <p align="center">
-    <a href="https://www.youtube.com/@codingforinnovations" target="_blank">
-      <img src=".github/static/logo.png" height="72" alt="Coding for Innovations Logo"/>    
-    </a>
-  </p>
-  <p align="center">
-    For Programmers, By Programmers.
-  </p>
-</p>
-
 # Dockerize Django with Nextjs
 
 A Bootstrapped Template of Django with Nextjs using Docker!
@@ -101,6 +90,7 @@ pip install -r apps/web/requirements.txt
 ```bash
 python manage.py apps/web/makemigrations
 python manage.py apps/web/migrate
+python manage.py runserver
 ```
 
 ####  For Frontend
@@ -131,7 +121,3 @@ npm run build
 
 [Change Log](https://github.com/codingforinnovations/dockerize-django-with-nextjs/commits/main) .
 
-<div align="center">
-<i>Other places you can find us:</i><br>
-<a href="https://www.youtube.com/@codingforinnovations" target="_blank"><img src="https://img.shields.io/badge/YouTube-%23E4405F.svg?&style=flat-square&logo=youtube&logoColor=white" alt="YouTube"></a>
-</div>
