@@ -68,7 +68,6 @@ export default function NewProductDialog() {
                 body: JSON.stringify(productInfo),
             })
                 .then((response) => response.json())
-                .then((data) => console.log(data))
                 .then(()=>{
                     materialList?.forEach((material)=>{
                         fetch(material.productURL, {
@@ -82,7 +81,7 @@ export default function NewProductDialog() {
                 })
                 .then(() => setShowDialog(false));
         }
-    }, [productInfo]);
+    }, [productInfo, materialList]);
 
     const handleAddMaterialButtonClick = React.useCallback(() => {
         if (materialFormValues.productURL !== "") {
