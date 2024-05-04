@@ -13,7 +13,6 @@ RUN /opt/venv/bin/pip install pip --upgrade && \
     chmod +x /app/web/scripts/migrations.sh && \
     chmod +x /app/web/scripts/collectstatic.sh && \
     bash /app/web/scripts/migrations.sh && \
-    bash /app/web/scripts/collectstatic.sh
-
-
+    bash /app/web/scripts/collectstatic.sh 
+    
 CMD ["/app/web/scripts/entrypoint.sh"]
