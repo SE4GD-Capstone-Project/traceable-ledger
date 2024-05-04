@@ -8,7 +8,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-
+ 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import Product, Subpart, ProductSubpart
