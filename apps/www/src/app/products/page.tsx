@@ -36,7 +36,7 @@ export default function Products() {
         </div>
       </div>
       <p className="text-xl font-bold dark:text-white">Current products</p>
-      <div className="flex gap-8">
+      <div className="flex gap-8 flex-wrap">
         {!!products ? (
           products.map((item, index) => {
             return (
