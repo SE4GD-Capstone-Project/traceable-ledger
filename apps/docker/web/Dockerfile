@@ -7,7 +7,7 @@ CMD ["mkdir", "app/web/"]
 WORKDIR /app/web/
 COPY ./apps/web/ .
 
-RUN /opt/venv/bin/pip install pip --upgrade && \
+RUN  /opt/venv/bin/pip install pip --upgrade && \
     /opt/venv/bin/pip install -r /app/web/requirements.txt && \
     chmod +x /app/web/scripts/entrypoint.sh && \
     chmod +x /app/web/scripts/migrations.sh && \
