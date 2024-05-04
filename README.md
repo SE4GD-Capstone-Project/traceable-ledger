@@ -1,6 +1,6 @@
 # Dockerize Django with Nextjs
 
-A Bootstrapped Template of Django with Nextjs using Docker!
+A Bootstrapped Template of Django(python) with Nextjs using Docker!
 
 ### Youtube Video: [Link](https://www.youtube.com/watch?v=ettHsKT2z9I)
 
