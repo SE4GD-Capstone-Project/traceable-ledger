@@ -24,7 +24,7 @@ import {
     TableHeader,
     TableRow,
 } from "./ui/table";
-import urlHandler from "@/utils/utils";
+import { urlHandler } from "@/utils/utils";
 
 export interface ProductType {
     name: string;
@@ -65,7 +65,17 @@ export default function NewProductDialog() {
             fetch(`${urlHandler(origin)}/api/products/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(productInfo),
+                body: JSON.stringify({
+                    ...productInfo,
+                    subparts: materialList?.map((material)=>{
+                        return {
+                            name: material.name,
+                            co2_per_unit: material.co2_per_unit,
+                            units_needed_per_product: material.unitsUsedPerProduct,
+                            units_bought: material.unitsToBuy
+                        }
+                    })
+                }),
             })
                 .then((response) => response.json())
                 .then(()=>{
