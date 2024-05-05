@@ -8,13 +8,10 @@ services:
       dockerfile: apps/docker/web/Dockerfile
     volumes:
       - static:/app/web/static
-
     ports:
       - 8000:8000
-
     env_file:
       - ./.env.dev
-    
     depends_on:
       - db
 
