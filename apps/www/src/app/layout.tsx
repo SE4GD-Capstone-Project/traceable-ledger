@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import Header from "@/components/header.view"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,6 +22,7 @@ export default function RootLayout({
                 <Header />
                 <div className="relative flex min-h-screen flex-col bg-background">
                     <main className="px-8 py-2">{children}</main>
+                    <Toaster />
                 </div>
             </body>
         </html>
