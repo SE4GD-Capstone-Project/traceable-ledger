@@ -6,7 +6,7 @@ from django.dispatch import receiver
 class Product(models.Model): 
     name = models.CharField(max_length=100) 
     number_of_units = models.IntegerField(help_text="Number of units available") 
-    co2_footprint_per_unit = models.FloatField() 
+    co2_footprint_per_unit = models.FloatField(default=0.0) 
      
      
     def __str__(self): 
