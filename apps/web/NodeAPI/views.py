@@ -6,9 +6,23 @@ from .serializers import ProductSerializer,ProductSubpartSerializer,SubpartSeria
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from rest_framework import status
+from rest_framework.response import Response
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):  # Check if multiple products are provided
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:  # Handle single product creation
+            return super(ProductViewSet, self).create(request, *args, **kwargs)
 
     @action(detail=True, methods=['get'])
     def subparts(self, request, pk=None):
@@ -18,19 +32,50 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = SubpartSerializer(subparts, many=True)
         return Response(serializer.data)
 
+
+
 class SubPartViewSet(viewsets.ModelViewSet):
     queryset = Subpart.objects.all()
     serializer_class = SubpartSerializer
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return super(SubPartViewSet, self).create(request, *args, **kwargs)
+
+
 class ProductSubpartViewSet(viewsets.ModelViewSet):
     queryset = ProductSubpart.objects.all()
     serializer_class = ProductSubpartSerializer
- 
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return super(ProductSubpartViewSet, self).create(request, *args, **kwargs)
 
 class SubContractorViewSet(viewsets.ModelViewSet):
     queryset = SubContractor.objects.all()
     serializer_class = SubContractorSerializer
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return super(SubContractorViewSet, self).create(request, *args, **kwargs)
 
 
 from django.shortcuts import render, redirect
