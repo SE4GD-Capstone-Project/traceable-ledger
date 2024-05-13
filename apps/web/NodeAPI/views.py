@@ -5,9 +5,7 @@ from .models import Product,Subpart,ProductSubpart,SubContractor
 from .serializers import ProductSerializer,ProductSubpartSerializer,SubpartSerializer,SubContractorSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
 from rest_framework import status
-from rest_framework.response import Response
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -78,11 +76,20 @@ class SubContractorViewSet(viewsets.ModelViewSet):
             return super(SubContractorViewSet, self).create(request, *args, **kwargs)
 
 
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from .models import Product, Subpart, ProductSubpart
-import json
-from .forms import ProductForm
+from .serializers import TransactionLogSerializer
+from .models import TransactionLog
+
+class TransactionLogViewSet(viewsets.ModelViewSet):
+    queryset = TransactionLog.objects.all()
+    serializer_class = TransactionLogSerializer
+
+
+
+# from django.shortcuts import render, redirect
+# from django.http import JsonResponse
+# from .models import Product, Subpart, ProductSubpart
+# import json
+# from .forms import ProductForm
 
 # def create_product(request):
 #     if request.method == 'POST':

@@ -46,4 +46,10 @@ class ProductSubpartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSubpart
         fields = '__all__'
-        
+
+from .models import TransactionLog
+
+class TransactionLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionLog
+        fields = '__all__'
