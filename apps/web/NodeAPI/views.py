@@ -7,7 +7,26 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
+
+from django.conf import settings
+
+def print_database_settings():
+    # Print the entire DATABASES dictionary
+    print(settings.DATABASES)
+
+    # To be more specific, print details of the default database
+    db_settings = settings.DATABASES['default']
+    print(f"ENGINE: {db_settings['ENGINE']}")
+    print(f"NAME: {db_settings['NAME']}")
+    print(f"USER: {db_settings['USER']}")
+    print(f"PASSWORD: {db_settings['PASSWORD']}")
+    print(f"HOST: {db_settings['HOST']}")
+    print(f"PORT: {db_settings['PORT']}")
+
+
 class ProductViewSet(viewsets.ModelViewSet):
+    # Call the function
+    print_database_settings()
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -134,3 +153,5 @@ class TransactionLogViewSet(viewsets.ModelViewSet):
 #         form = ProductForm()
 
 #     return render(request, 'create_product.html', {'form': form})
+
+

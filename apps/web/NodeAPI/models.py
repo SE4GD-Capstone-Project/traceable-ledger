@@ -3,25 +3,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver 
  
  
-class Product(models.Model): 
-    name = models.CharField(max_length=100) 
-    number_of_units = models.IntegerField(help_text="Number of units available") 
-    co2_footprint_per_unit = models.FloatField(default=0.0) 
-     
-     
-    def __str__(self): 
-        return self.name 
-    
-    def __hash__(self) -> int: 
-        return hash((self.co2_footprint_per_unit)) 
- 
 class SubContractor(models.Model): 
     name = models.CharField(max_length=100, blank=True) 
     # Include other fields as necessary for subcontractors 
  
     def __str__(self): 
         return self.name 
- 
+
 class Subpart(models.Model): 
     name = models.CharField(max_length=100) 
     co2_footprint = models.FloatField(help_text="CO2 footprint per unit") 
@@ -30,6 +18,21 @@ class Subpart(models.Model):
  
     def __str__(self): 
         return self.name 
+ 
+
+class Product(models.Model): 
+    name = models.CharField(max_length=100) 
+    number_of_units = models.IntegerField(help_text="Number of units available") 
+    co2_footprint_per_unit = models.FloatField()
+    subparts = models.ManyToManyField(Subpart, related_name='products')
+     
+     
+    def __str__(self): 
+        return self.name 
+    
+    def __hash__(self) -> int: 
+        return hash((self.co2_footprint_per_unit)) 
+ 
  
 # class ProductSubpart(models.Model): 
 #     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_subparts') 

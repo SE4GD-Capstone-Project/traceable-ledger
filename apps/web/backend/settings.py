@@ -12,8 +12,14 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Assume the .env.dev file is in the same directory as settings.py
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env.dev')
+load_dotenv(dotenv_path)# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,8 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-v%_+3k9@-*28+_v_z1soq!%_xd_jt7&@c!r_=j=q74^_-em-1c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+# DEBUG = os.environ.get("DEBUG")
+DEBUG=True
 ALLOWED_HOSTS = ["*"]
 
 
@@ -91,12 +97,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "hello_django_dev",
+        "USER": "hello_django",
+        "PASSWORD": "hello_django",
+        "HOST": "db",
+        "PORT": 5432
     }
 }
 

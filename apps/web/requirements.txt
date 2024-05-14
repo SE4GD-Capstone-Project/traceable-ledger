@@ -12,4 +12,4 @@ typing_extensions==4.10.0
 gunicorn
 django-cors-headers==3.3.0
 psycopg2-binary==2.9.6
-
+python-dotenv

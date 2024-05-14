@@ -27,22 +27,47 @@ from .models import Product, Subpart, ProductSubpart,SubContractor
 #         model = Product
 #         fields = ['id', 'name', 'number_of_units', 'co2_per_unit', 'subparts']
 
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-class SubpartSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Subpart
-        fields = '__all__'
 
 class SubContractorSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubContractor
         fields = '__all__'
 
+
+class SubpartSerializer(serializers.ModelSerializer):
+    contractor = SubContractorSerializer()
+    class Meta:
+        model = Subpart
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        contractor_data = validated_data.pop('contractor')
+        contractor, created = SubContractor.objects.get_or_create(**contractor_data)
+        subpart = Subpart.objects.create(contractor=contractor, **validated_data)
+        return subpart
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    subparts = SubpartSerializer(many=True)
+    class Meta:
+        model = Product
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        subparts_data = validated_data.pop('subparts')
+        product = Product.objects.create(**validated_data)
+        
+        for subpart_data in subparts_data:
+            contractor_data = subpart_data.pop('contractor')
+            contractor, created = SubContractor.objects.get_or_create(**contractor_data)
+            subpart, created = Subpart.objects.get_or_create(contractor=contractor, **subpart_data)
+            product.subparts.add(subpart)
+        
+        return product
+
+
 class ProductSubpartSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = ProductSubpart
         fields = '__all__'
