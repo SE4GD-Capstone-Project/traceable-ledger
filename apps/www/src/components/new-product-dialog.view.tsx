@@ -121,7 +121,9 @@ export default function NewProductDialog() {
 
     const handleAddMaterialButtonClick = React.useCallback(() => {
         if (materialFormValues.productURL !== "") {
-            fetch(materialFormValues.productURL)
+            fetch(materialFormValues.productURL+"/", {
+                headers: { "Content-Type": "application/json" },
+            })
                 .then((res) => res.json())
                 .then((data: ProductType) => {
                     if (data) {
