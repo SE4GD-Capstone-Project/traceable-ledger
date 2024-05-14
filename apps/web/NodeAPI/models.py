@@ -70,17 +70,21 @@ class ProductSubpart(models.Model):
     def __str__(self): 
         return f"{self.subpart.name} for {self.product.name}" 
  
-# Signal receiver function to create a TransactionLog after a ProductSubpart is saved 
-@receiver(post_save, sender=ProductSubpart) 
-def create_transaction_log(sender, instance, created, **kwargs): 
-    if created:  # Only run this for newly created instances 
-        TransactionLog.objects.create( 
-            buyer_id="123",  # Assuming this is a fixed value or could be dynamic based on other logic 
-            seller_id=str(instance.subpart.contractor), 
-            product_id=str(instance.product), 
-            subpart_id=str(instance.subpart), 
-            amount=str(instance.units_to_buy) 
-        )     
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+# @receiver(post_save, sender=Product)
+# def create_transaction_log(sender, instance, created, **kwargs):
+#     print("in product post save")
+#     if created:  # Only run this for newly created instances
+#         for subpart in instance.subparts.all():
+#             TransactionLog.objects.create(
+#                 buyer_id="123",  # Assuming this is a fixed value or could be dynamic based on other logic
+#                 seller_id=str(subpart.contractor),
+#                 product_id=str(instance.id),
+#                 subpart_id=str(subpart.id),
+#                 amount=str(subpart.units_bought)
+#             )
            
 class TransactionLog(models.Model): 
     buyer_id = models.CharField(max_length=100) 
