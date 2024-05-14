@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
@@ -89,7 +90,20 @@ export default function NewProductDialog() {
                         })
                     })
                 })
-                .then(() => setShowDialog(false));
+                .then(() => setShowDialog(false)).then(()=>{
+                        const currentDateTime = new Date().toLocaleString('en-US', {
+                            weekday: 'long', // "Monday" to "Sunday"
+                            year: 'numeric', // "2023"
+                            month: 'long', // "January" to "December"
+                            day: 'numeric', // "1" to "31"
+                            hour: 'numeric', // "1" to "12" AM/PM
+                            minute: 'numeric', // "00" to "59"
+                            hour12: true // Use 12-hour format
+                        });
+                    toast("Product has been created successfully.", {
+                        description: currentDateTime,
+                      })
+                });
         }
     }, [productInfo, materialList]);
 
