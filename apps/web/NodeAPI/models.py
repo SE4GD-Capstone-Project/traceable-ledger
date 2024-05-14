@@ -13,6 +13,8 @@ class SubContractor(models.Model):
 class Subpart(models.Model): 
     name = models.CharField(max_length=100) 
     co2_footprint = models.FloatField(help_text="CO2 footprint per unit") 
+    quantity_needed_per_unit = models.FloatField(help_text="Quantity of the subpart needed to make one unit of product") 
+    units_bought = models.FloatField(help_text="Number of units to buy from the subcontractor") 
     contractor = models.ForeignKey(SubContractor, on_delete=models.CASCADE, blank=True, null=True) 
     # You might include other fields relevant to subparts, such as a unit price, etc. 
  
