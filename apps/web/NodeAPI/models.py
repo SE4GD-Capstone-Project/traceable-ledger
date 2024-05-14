@@ -24,8 +24,8 @@ class Subpart(models.Model):
 
 class Product(models.Model): 
     name = models.CharField(max_length=100) 
-    number_of_units = models.IntegerField(help_text="Number of units available") 
-    co2_footprint_per_unit = models.FloatField()
+    number_of_units = models.IntegerField(help_text="Number of units available")
+    co2_footprint = models.FloatField()
     subparts = models.ManyToManyField(Subpart, related_name='products')
      
      
@@ -33,7 +33,7 @@ class Product(models.Model):
         return self.name 
     
     def __hash__(self) -> int: 
-        return hash((self.co2_footprint_per_unit)) 
+        return hash((self.co2_footprint))
  
  
 # class ProductSubpart(models.Model): 

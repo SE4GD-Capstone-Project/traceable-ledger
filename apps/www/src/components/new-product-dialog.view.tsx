@@ -30,7 +30,7 @@ import { urlHandler } from "@/utils/utils";
 export interface ProductType {
     name: string;
     number_of_units: number;
-    co2_per_unit: number;
+    co2_footprint: number;
 }
 
 export interface SubcontractorMaterialType extends ProductType {
@@ -47,7 +47,7 @@ interface MaterialFormValueType {
 export default function NewProductDialog() {
     const [productInfo, setProductInfo] = React.useState<ProductType>({
         name: "",
-        co2_per_unit: 0,
+        co2_footprint: 0,
         number_of_units: 0,
     });
     const [showDialog, setShowDialog] = React.useState(false);
@@ -63,19 +63,30 @@ export default function NewProductDialog() {
     const handleCreateButtonClick = React.useCallback(() => {
         if (typeof window !== "undefined") {
             const origin = window.location.origin;
+            console.log(JSON.stringify({
+                ...productInfo,
+                subparts: materialList ? materialList.map((material)=>{
+                    return {
+                        name: material.name,
+                        co2_footprint: material.co2_footprint,
+                        quantity_needed_per_unit: material.unitsUsedPerProduct,
+                        units_bought: material.unitsToBuy
+                    }
+                }) : []
+            }))
             fetch(`${urlHandler(origin)}/api/products/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...productInfo,
-                    subparts: materialList?.map((material)=>{
+                    subparts: materialList ? materialList.map((material)=>{
                         return {
                             name: material.name,
-                            co2_per_unit: material.co2_per_unit,
-                            units_needed_per_product: material.unitsUsedPerProduct,
+                            co2_footprint: material.co2_footprint,
+                            quantity_needed_per_unit: material.unitsUsedPerProduct,
                             units_bought: material.unitsToBuy
                         }
-                    })
+                    }) : []
                 }),
             })
                 .then((response) => response.json())
@@ -85,6 +96,7 @@ export default function NewProductDialog() {
                             method: "PATCH",
                             headers: {"Content-Type": "application/json"},
                             body: JSON.stringify({
+                                //should have modifier info to save to logs
                                 number_of_units: material.number_of_units - material.unitsToBuy
                             })
                         })
@@ -152,7 +164,7 @@ export default function NewProductDialog() {
 
     const totalCO2 = React.useMemo(()=>{
         let totalCO2 = 0;
-        materialList?.forEach((material) =>{totalCO2 += material.co2_per_unit * material.unitsToBuy});
+        materialList?.forEach((material) =>{totalCO2 += material.co2_footprint * material.unitsToBuy});
         return totalCO2
     },[materialList])
 
@@ -165,7 +177,7 @@ export default function NewProductDialog() {
                     setMaterialList(undefined);
                     setProductInfo({
                         name: "",
-                        co2_per_unit: 0,
+                        co2_footprint: 0,
                         number_of_units: 0,
                     });
                     setMaterialFormValues({
@@ -237,7 +249,7 @@ export default function NewProductDialog() {
                                 onChange={(event) => {
                                     setProductInfo({
                                         ...productInfo,
-                                        co2_per_unit: parseInt(
+                                        co2_footprint: parseInt(
                                             event.target.value
                                         ),
                                     });
@@ -305,8 +317,8 @@ export default function NewProductDialog() {
                                           <TableCell>{index + 1}</TableCell>
                                           <TableCell>{materialInfo.name}</TableCell>
                                           <TableCell>{materialInfo.unitsUsedPerProduct}</TableCell>
-                                          <TableCell>{materialInfo.co2_per_unit}</TableCell>
-                                          <TableCell className="text-right">{materialInfo.co2_per_unit * materialInfo.unitsToBuy}</TableCell>
+                                          <TableCell>{materialInfo.co2_footprint}</TableCell>
+                                          <TableCell className="text-right">{materialInfo.co2_footprint * materialInfo.unitsToBuy}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
