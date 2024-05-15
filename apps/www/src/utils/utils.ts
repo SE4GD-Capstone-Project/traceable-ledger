@@ -7,8 +7,11 @@ export function urlHandler(path: string): string {
 
 export function preferencesUrlHandler(): string {
     if (typeof window !== "undefined") {
-        const origin = window.location.origin;
-        return `${origin}:3000/api`;
+        if (window.location.origin !== "http://0.0.0.0") {
+            const origin = window.location.origin;
+            return `${origin}/preferences-api`;
+        }
+        return "http://0.0.0.0:3000/api";
     } else return "http://0.0.0.0:3000/api";
 }
 
