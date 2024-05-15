@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { Dispatch } from "react";
+import { preferencesUrlHandler } from "@/utils/utils";
 
 export const themes = ["zinc", "rose", "blue", "green", "orange"];
 export interface PreferenceContextType {
@@ -25,7 +26,7 @@ export const PreferenceProvider: React.FC<Props> = (props) => {
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch("/api");
+            const response = await fetch(preferencesUrlHandler());
             const data = await response.json();
             if (data.theme !== "") {
                 setTheme(data.theme);

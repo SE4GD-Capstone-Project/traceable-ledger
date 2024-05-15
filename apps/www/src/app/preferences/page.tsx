@@ -8,18 +8,20 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CheckIcon, Pencil2Icon, Cross1Icon } from "@radix-ui/react-icons";
+import { preferencesUrlHandler } from "@/utils/utils";
 
 export default function Home() {
     const { companyName, setCompanyName, theme, setTheme } =
         React.useContext(PreferenceContext);
 
+    console.log(companyName);
     const [tempCompanyName, setTempCompanyName] = React.useState(companyName);
     const [isInNameEditMode, setIsInNameEditMode] = React.useState(false);
 
     const handleThemeButtonClick = React.useCallback(
         async (theme: string) => {
             setTheme(theme);
-            await fetch("/api/", {
+            await fetch(preferencesUrlHandler(), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -30,12 +32,12 @@ export default function Home() {
                 }),
             });
         },
-        [companyName]
+        [companyName, setTheme]
     );
 
     const handleCompanyNameChange = React.useCallback(async () => {
         setCompanyName(tempCompanyName);
-        await fetch("/api", {
+        await fetch(preferencesUrlHandler(), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -46,7 +48,7 @@ export default function Home() {
             }),
         });
         setIsInNameEditMode(false);
-    }, [tempCompanyName, theme]);
+    }, [tempCompanyName, theme, setCompanyName]);
 
     const handleCompanyNameUnchange = React.useCallback(() => {
         setTempCompanyName(companyName);

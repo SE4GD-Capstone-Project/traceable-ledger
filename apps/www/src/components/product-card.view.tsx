@@ -19,12 +19,7 @@ import {
     SheetTrigger,
 } from "./ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-    Pencil2Icon,
-    TrashIcon,
-    CheckIcon,
-    CopyIcon,
-} from "@radix-ui/react-icons";
+import { Pencil2Icon, CheckIcon, CopyIcon } from "@radix-ui/react-icons";
 import React from "react";
 import { getProductUrl } from "@/utils/utils";
 
@@ -48,7 +43,7 @@ export default function ProductCard(props: ProductCardProps) {
     const handleCopyUrlButtonClick = React.useCallback(() => {
         setIsCopyButtonClicked(true);
         navigator.clipboard.writeText(getProductUrl(props.id) ?? "");
-    }, []);
+    }, [props.id]);
 
     React.useEffect(() => {
         if (isCopyButtonClicked) {
