@@ -6,13 +6,14 @@ export function urlHandler(path: string): string {
 }
 
 export function preferencesUrlHandler(): string {
-    if (typeof window !== "undefined") {
-        if (window.location.origin !== "http://0.0.0.0") {
-            const origin = window.location.origin;
-            return `${origin}/preferences-api`;
-        }
-        return "http://0.0.0.0:3000/api";
-    } else return "http://0.0.0.0:3000/api";
+    if (
+        typeof window !== "undefined" &&
+        window.location.origin !== "http://localhost:3000"
+    ) {
+        const origin = window.location.origin;
+        return `${origin}/preferences-api`;
+    }
+    return "http://localhost:3000/api";
 }
 
 export function getProductUrl(id: number): string | undefined {

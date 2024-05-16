@@ -1,13 +1,14 @@
 "use client";
 
-import ProductCard, { ProductType } from "@/components/product-card.view";
+import ProductCard from "@/components/product-card.view";
 import { urlHandler } from "@/utils/utils";
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import NewProductDialog from "@/components/new-product-dialog.view";
+import { ProductType } from "@/components/types/product.api";
 
 export default function Products() {
-    const [products, setProducts] = React.useState<ProductType[]>();
+    const [products, setProducts] = React.useState<ProductType[]>([]);
     React.useEffect(() => {
         if (typeof window !== "undefined") {
             const origin = window.location.origin;
@@ -26,7 +27,7 @@ export default function Products() {
             return () => clearInterval(interval);
         }
     }, []);
-            console.log(products)
+    console.log(products);
 
     return (
         <div className="flex gap-4 flex-col">
@@ -45,10 +46,10 @@ export default function Products() {
                             <ProductCard
                                 key={index}
                                 title={item.name}
-                                description="tbd"
+                                description="to be described"
                                 numberOfUnits={item.number_of_units}
-                                co2PerUnit={item.co2_per_unit}
-                                id={item.id}
+                                co2PerUnit={item.co2_footprint}
+                                id={Number(item.id)}
                             />
                         );
                     })

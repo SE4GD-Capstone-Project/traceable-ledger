@@ -15,45 +15,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "./ui/table";
 import { urlHandler } from "@/utils/utils";
-
-export interface ProductType {
-    name: string;
-    number_of_units: number;
-    co2_footprint: number;
-}
-
-export interface SubcontractorMaterialType extends ProductType {
-    unitsToBuy: number;
-    unitsUsedPerProduct: number;
-    productURL: string;
-}
-
-interface MaterialFormValueType {
-    unitsUsedPerProduct: number;
-    productURL: string;
-}
+import { PreferenceContext } from "@/components/preference-context.view";
+import {
+    MaterialFormValueType,
+    ProductType,
+    SubcontractorMaterialType,
+} from "@/components/types/product.api";
+import {
+    MaterialDataTable,
+    materialDataTableColumns,
+} from "@/components/material-data-table.view";
 
 export default function NewProductDialog() {
+    const { theme } = React.useContext(PreferenceContext);
     const [productInfo, setProductInfo] = React.useState<ProductType>({
+        id: "",
         name: "",
         co2_footprint: 0,
         number_of_units: 0,
     });
     const [showDialog, setShowDialog] = React.useState(false);
     const [materialList, setMaterialList] = React.useState<
-        SubcontractorMaterialType[] | undefined
-    >();
+        SubcontractorMaterialType[]
+    >([]);
     const [materialFormValues, setMaterialFormValues] =
         React.useState<MaterialFormValueType>({
             productURL: "",
@@ -63,65 +48,62 @@ export default function NewProductDialog() {
     const handleCreateButtonClick = React.useCallback(() => {
         if (typeof window !== "undefined") {
             const origin = window.location.origin;
-            console.log(JSON.stringify({
-                ...productInfo,
-                subparts: materialList ? materialList.map((material)=>{
-                    return {
-                        name: material.name,
-                        co2_footprint: material.co2_footprint,
-                        quantity_needed_per_unit: material.unitsUsedPerProduct,
-                        units_bought: material.unitsToBuy
-                    }
-                }) : []
-            }))
             fetch(`${urlHandler(origin)}/api/products/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    ...productInfo,
-                    subparts: materialList ? materialList.map((material)=>{
-                        return {
-                            name: material.name,
-                            co2_footprint: material.co2_footprint,
-                            quantity_needed_per_unit: material.unitsUsedPerProduct,
-                            units_bought: material.unitsToBuy
-                        }
-                    }) : []
+                    name: productInfo.name,
+                    co2_footprint: productInfo.co2_footprint,
+                    number_of_units: productInfo.number_of_units,
+                    subparts: materialList
+                        ? materialList.map((material) => {
+                              return {
+                                  name: material.name,
+                                  co2_footprint: material.co2_footprint,
+                                  quantity_needed_per_unit:
+                                      material.unitsUsedPerProduct,
+                                  units_bought: material.unitsToBuy,
+                              };
+                          })
+                        : [],
                 }),
             })
                 .then((response) => response.json())
-                .then(()=>{
-                    materialList?.forEach((material)=>{
+                .then(() => {
+                    materialList?.forEach((material) => {
                         fetch(material.productURL, {
                             method: "PATCH",
-                            headers: {"Content-Type": "application/json"},
+                            headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
                                 //should have modifier info to save to logs
-                                number_of_units: material.number_of_units - material.unitsToBuy
-                            })
-                        })
-                    })
-                })
-                .then(() => setShowDialog(false)).then(()=>{
-                        const currentDateTime = new Date().toLocaleString('en-US', {
-                            weekday: 'long', // "Monday" to "Sunday"
-                            year: 'numeric', // "2023"
-                            month: 'long', // "January" to "December"
-                            day: 'numeric', // "1" to "31"
-                            hour: 'numeric', // "1" to "12" AM/PM
-                            minute: 'numeric', // "00" to "59"
-                            hour12: true // Use 12-hour format
+                                number_of_units:
+                                    material.number_of_units -
+                                    material.unitsToBuy,
+                            }),
                         });
+                    });
+                })
+                .then(() => setShowDialog(false))
+                .then(() => {
+                    const currentDateTime = new Date().toLocaleString("en-US", {
+                        weekday: "long", // "Monday" to "Sunday"
+                        year: "numeric", // "2023"
+                        month: "long", // "January" to "December"
+                        day: "numeric", // "1" to "31"
+                        hour: "numeric", // "1" to "12" AM/PM
+                        minute: "numeric", // "00" to "59"
+                        hour12: true, // Use 12-hour format
+                    });
                     toast("Product has been created successfully.", {
                         description: currentDateTime,
-                      })
+                    });
                 });
         }
     }, [productInfo, materialList]);
 
     const handleAddMaterialButtonClick = React.useCallback(() => {
         if (materialFormValues.productURL !== "") {
-            fetch(materialFormValues.productURL+"/", {
+            fetch(materialFormValues.productURL + "/", {
                 headers: { "Content-Type": "application/json" },
             })
                 .then((res) => res.json())
@@ -137,7 +119,7 @@ export default function NewProductDialog() {
                                     unitsToBuy:
                                         materialFormValues.unitsUsedPerProduct *
                                         productInfo.number_of_units,
-                                    productURL: materialFormValues.productURL
+                                    productURL: materialFormValues.productURL,
                                 },
                             ]);
                         } else {
@@ -149,7 +131,7 @@ export default function NewProductDialog() {
                                     unitsToBuy:
                                         materialFormValues.unitsUsedPerProduct *
                                         productInfo.number_of_units,
-                                    productURL: materialFormValues.productURL
+                                    productURL: materialFormValues.productURL,
                                 },
                             ]);
                         }
@@ -164,11 +146,17 @@ export default function NewProductDialog() {
         }
     }, [materialList, productInfo, materialFormValues]);
 
-    const totalCO2 = React.useMemo(()=>{
-        let totalCO2 = 0;
-        materialList?.forEach((material) =>{totalCO2 += material.co2_footprint * material.unitsToBuy});
-        return totalCO2
-    },[materialList])
+    const handleOnRowActionDelete = React.useCallback(
+        (id: string) => {
+            if (confirm("Do you want to remove this material?")) {
+                const index = materialList.findIndex((item) => item.id === id);
+                if (index > -1) {
+                    setMaterialList(materialList.toSpliced(index, 1));
+                }
+            }
+        },
+        [materialList, setMaterialList]
+    );
 
     return (
         <>
@@ -176,8 +164,9 @@ export default function NewProductDialog() {
                 open={showDialog}
                 onOpenChange={(open: boolean) => {
                     setShowDialog(open);
-                    setMaterialList(undefined);
+                    setMaterialList([]);
                     setProductInfo({
+                        id: "",
                         name: "",
                         co2_footprint: 0,
                         number_of_units: 0,
@@ -185,7 +174,7 @@ export default function NewProductDialog() {
                     setMaterialFormValues({
                         productURL: "",
                         unitsUsedPerProduct: 0,
-                    })
+                    });
                 }}
             >
                 <DialogTrigger asChild>
@@ -194,7 +183,7 @@ export default function NewProductDialog() {
                         New product...
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="">
+                <DialogContent className={`theme-${theme}`}>
                     <DialogHeader>
                         <DialogTitle>Create new product</DialogTitle>
                         <DialogDescription>
@@ -277,7 +266,11 @@ export default function NewProductDialog() {
                                         ),
                                     });
                                 }}
-                                value={materialFormValues.unitsUsedPerProduct === 0 ? "" : materialFormValues.unitsUsedPerProduct}
+                                value={
+                                    materialFormValues.unitsUsedPerProduct === 0
+                                        ? ""
+                                        : materialFormValues.unitsUsedPerProduct
+                                }
                             />
                             <Input
                                 id="co2-per-unit"
@@ -291,49 +284,19 @@ export default function NewProductDialog() {
                                 }}
                                 value={materialFormValues.productURL}
                             />
-                            <Button className="col-span-1" onClick={handleAddMaterialButtonClick}>Add material</Button>
+                            <Button
+                                className="col-span-1"
+                                onClick={handleAddMaterialButtonClick}
+                            >
+                                Add material
+                            </Button>
                         </div>
-                        <ScrollArea>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[100px]">
-                                            No.
-                                        </TableHead>
-                                        <TableHead>Name</TableHead>
-                                        <TableHead>
-                                            Units used per product
-                                        </TableHead>
-                                        <TableHead>CO2 per unit</TableHead>
-                                        <TableHead className="text-right">
-                                            Total CO2 used
-                                        </TableHead>
-                                        <TableHead className="text-center">
-                                            Actions
-                                        </TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {materialList?.map((materialInfo, index) => (
-                                        <TableRow key={index}>
-                                          <TableCell>{index + 1}</TableCell>
-                                          <TableCell>{materialInfo.name}</TableCell>
-                                          <TableCell>{materialInfo.unitsUsedPerProduct}</TableCell>
-                                          <TableCell>{materialInfo.co2_footprint}</TableCell>
-                                          <TableCell className="text-right">{materialInfo.co2_footprint * materialInfo.unitsToBuy}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                                <TableFooter>
-                                    <TableRow>
-                                        <TableCell colSpan={4}>Total CO2 from materials</TableCell>
-                                        <TableCell className="text-right">
-                                            {totalCO2}
-                                        </TableCell>
-                                    </TableRow>
-                                </TableFooter>
-                            </Table>
-                        </ScrollArea>
+                        <MaterialDataTable
+                            columns={materialDataTableColumns(
+                                handleOnRowActionDelete
+                            )}
+                            data={materialList}
+                        />
                     </div>
                     <DialogFooter>
                         <Button type="submit" onClick={handleCreateButtonClick}>

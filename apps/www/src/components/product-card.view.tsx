@@ -22,21 +22,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Pencil2Icon, CheckIcon, CopyIcon } from "@radix-ui/react-icons";
 import React from "react";
 import { getProductUrl } from "@/utils/utils";
+import { ProductCardProps } from "./types/product.api";
 
-export interface ProductType {
-    id: number;
-    name: string;
-    number_of_units?: number;
-    co2_per_unit?: number;
-}
-export interface ProductCardProps {
-    id: number;
-    title: React.ReactNode;
-    description?: React.ReactNode;
-    image?: React.ReactNode;
-    numberOfUnits?: number;
-    co2PerUnit?: number;
-}
 export default function ProductCard(props: ProductCardProps) {
     const [isCopyButtonClicked, setIsCopyButtonClicked] = React.useState(false);
 
