@@ -20,25 +20,32 @@ import { PreferenceContext } from "@/components/preference-context.view";
 import {
     MaterialFormValueType,
     ProductType,
-    SubcontractorMaterialType,
+    SubpartType,
 } from "@/components/types/product.api";
 import {
     MaterialDataTable,
     materialDataTableColumns,
 } from "@/components/material-data-table.view";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function NewProductDialog() {
-    const { theme } = React.useContext(PreferenceContext);
+    const { theme, companyName } = React.useContext(PreferenceContext);
     const [productInfo, setProductInfo] = React.useState<ProductType>({
         id: "",
         name: "",
+        manufacturer: {
+            name: companyName,
+        },
         co2_footprint: 0,
         number_of_units: 0,
     });
     const [showDialog, setShowDialog] = React.useState(false);
-    const [materialList, setMaterialList] = React.useState<
-        SubcontractorMaterialType[]
-    >([]);
+    const [materialList, setMaterialList] = React.useState<SubpartType[]>([]);
     const [materialFormValues, setMaterialFormValues] =
         React.useState<MaterialFormValueType>({
             productURL: "",
@@ -53,6 +60,10 @@ export default function NewProductDialog() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: productInfo.name,
+                    manufacturer:
+                        productInfo.manufacturer.name === ""
+                            ? { name: "test inc" }
+                            : { name: productInfo.manufacturer.name },
                     co2_footprint: productInfo.co2_footprint,
                     number_of_units: productInfo.number_of_units,
                     subparts: materialList
@@ -168,6 +179,7 @@ export default function NewProductDialog() {
                     setProductInfo({
                         id: "",
                         name: "",
+                        manufacturer: { name: companyName },
                         co2_footprint: 0,
                         number_of_units: 0,
                     });
@@ -187,18 +199,25 @@ export default function NewProductDialog() {
                     <DialogHeader>
                         <DialogTitle>Create new product</DialogTitle>
                         <DialogDescription>
-                            Add products information here. Click create when you
-                            are done.
+                            <p>
+                                Add products information here. Click create when
+                                you are done.
+                            </p>
+                            <p>
+                                Fields with red asterisk ({" "}
+                                <span className={"text-red-500"}>*</span> ) are
+                                required.
+                            </p>
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-8 items-center gap-4">
-                            <Label htmlFor="name" className="">
-                                Name
+                        <div className="grid grid-cols-12 items-center gap-4">
+                            <Label htmlFor="name" className="col-span-2">
+                                Name <span className={"text-red-500"}>*</span>
                             </Label>
                             <Input
                                 id="name"
-                                className="col-span-7"
+                                className="col-span-10"
                                 placeholder="Example: Steel"
                                 onChange={(event) => {
                                     setProductInfo({
@@ -206,49 +225,66 @@ export default function NewProductDialog() {
                                         name: event.target.value,
                                     });
                                 }}
+                                required
                             />
                         </div>
-                        <div className="grid grid-cols-8 items-center gap-4">
-                            <Label htmlFor="number-of-units" className="">
-                                Number of units
+                        <div className="grid grid-cols-12 items-center gap-4">
+                            <Label
+                                htmlFor="number-of-units"
+                                className="col-span-2"
+                            >
+                                Number of units{" "}
+                                <span className={"text-red-500"}>*</span>
                             </Label>
                             <Input
                                 id="number-of-units"
                                 placeholder="Example: 20"
-                                className="col-span-7"
+                                className="col-span-10"
                                 type="number"
                                 onChange={(event) => {
-                                    console.log(productInfo);
                                     setProductInfo({
                                         ...productInfo,
-                                        number_of_units: parseInt(
-                                            event.target.value
-                                        ),
+                                        number_of_units: Number.isNaN(
+                                            parseInt(event.target.value)
+                                        )
+                                            ? 0
+                                            : parseInt(event.target.value),
                                     });
                                 }}
+                                required
                             />
                         </div>
-                        <div className="grid grid-cols-8 items-center gap-4">
-                            <Label htmlFor="co2-per-unit" className="">
-                                Amount of CO2 per unit
+                        <div className="grid grid-cols-12 items-center gap-4">
+                            <Label
+                                htmlFor="co2-per-unit"
+                                className="col-span-2"
+                            >
+                                Amount of CO2 per unit{" "}
+                                <span className={"text-red-500"}>*</span>
                             </Label>
                             <Input
                                 id="co2-per-unit"
                                 placeholder="Example: 20"
-                                className="col-span-7"
+                                className="col-span-10"
                                 type="number"
                                 onChange={(event) => {
                                     setProductInfo({
                                         ...productInfo,
-                                        co2_footprint: parseInt(
-                                            event.target.value
-                                        ),
+                                        co2_footprint: Number.isNaN(
+                                            parseInt(event.target.value)
+                                        )
+                                            ? 0
+                                            : parseInt(event.target.value),
                                     });
                                 }}
+                                required
                             />
                         </div>
                         <div>
-                            <Label htmlFor="co2-per-unit" className="">
+                            <Label
+                                htmlFor="co2-per-unit col-span-4"
+                                className=""
+                            >
                                 Materials used
                             </Label>
                         </div>
@@ -261,9 +297,11 @@ export default function NewProductDialog() {
                                 onChange={(event) => {
                                     setMaterialFormValues({
                                         ...materialFormValues,
-                                        unitsUsedPerProduct: parseInt(
-                                            event.target.value
-                                        ),
+                                        unitsUsedPerProduct: Number.isNaN(
+                                            parseInt(event.target.value)
+                                        )
+                                            ? 0
+                                            : parseInt(event.target.value),
                                     });
                                 }}
                                 value={
@@ -284,12 +322,34 @@ export default function NewProductDialog() {
                                 }}
                                 value={materialFormValues.productURL}
                             />
-                            <Button
-                                className="col-span-1"
-                                onClick={handleAddMaterialButtonClick}
-                            >
-                                Add material
-                            </Button>
+                            {materialFormValues.unitsUsedPerProduct !== 0 &&
+                            productInfo.number_of_units !== 0 &&
+                            materialFormValues.productURL !== "" ? (
+                                <Button
+                                    className="col-span-1"
+                                    onClick={handleAddMaterialButtonClick}
+                                >
+                                    Add material
+                                </Button>
+                            ) : (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <Button
+                                                className="col-span-1"
+                                                disabled={true}
+                                            >
+                                                Add material
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            Please set the amount of products
+                                            and amount of materials used by the
+                                            product!
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            )}
                         </div>
                         <MaterialDataTable
                             columns={materialDataTableColumns(
@@ -299,9 +359,30 @@ export default function NewProductDialog() {
                         />
                     </div>
                     <DialogFooter>
-                        <Button type="submit" onClick={handleCreateButtonClick}>
-                            Create
-                        </Button>
+                        {productInfo.name !== "" &&
+                        productInfo.number_of_units !== 0 &&
+                        productInfo.co2_footprint !== 0 ? (
+                            <Button
+                                type="submit"
+                                onClick={handleCreateButtonClick}
+                            >
+                                Create
+                            </Button>
+                        ) : (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Button type="submit" disabled>
+                                            Create
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Please fill all the required information
+                                        before creating the product!
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

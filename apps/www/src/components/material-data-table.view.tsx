@@ -18,7 +18,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
-import { SubcontractorMaterialType } from "@/components/types/product.api";
+import { SubpartType } from "@/components/types/product.api";
 import { TrashIcon } from "@radix-ui/react-icons";
 
 interface DataTableProps<TData, TValue> {
@@ -26,9 +26,9 @@ interface DataTableProps<TData, TValue> {
     data: TData[];
 }
 export const materialDataTableColumns = (
-    onDelete: (itemId: string) => void
-): ColumnDef<SubcontractorMaterialType>[] => {
-    return [
+    onDelete?: (itemId: string) => void
+): ColumnDef<SubpartType>[] => {
+    let columns: ColumnDef<SubpartType>[] = [
         {
             accessorKey: "name",
             header: "Name",
@@ -52,7 +52,9 @@ export const materialDataTableColumns = (
             accessorKey: "productURL",
             header: "Product URL",
         },
-        {
+    ];
+    if (onDelete) {
+        columns.push({
             id: "actions",
             header: "Actions",
             cell: ({ row }) => {
@@ -67,14 +69,15 @@ export const materialDataTableColumns = (
                     </>
                 );
             },
-        },
-    ];
+        });
+    }
+    return columns;
 };
 
 export function MaterialDataTable<TData, TValue>({
     columns,
     data,
-}: DataTableProps<SubcontractorMaterialType, TValue>) {
+}: DataTableProps<SubpartType, TValue>) {
     const table = useReactTable({
         data,
         columns,

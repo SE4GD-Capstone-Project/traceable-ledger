@@ -1,13 +1,20 @@
 import React from "react";
 
+export interface ManufacturerType {
+    name: string;
+    id?: number;
+}
+
 export interface ProductType {
     id: string;
     name: string;
+    manufacturer: ManufacturerType;
     number_of_units: number;
     co2_footprint: number;
+    subparts?: ProductType[];
 }
 
-export interface SubcontractorMaterialType extends ProductType {
+export interface SubpartType extends ProductType {
     unitsToBuy: number;
     unitsUsedPerProduct: number;
     productURL: string;

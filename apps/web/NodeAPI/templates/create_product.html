@@ -24,7 +24,7 @@
                 <input type="number" class="form-control" id="unitsNeeded" placeholder="Units needed per a unit of product">
             </div>
             <div class="col">
-                <input type="number" class="form-control" id="unitsToBuy" placeholder="Units to buy from subcontractor">
+                <input type="number" class="form-control" id="unitsToBuy" placeholder="Units to buy from submanufacturer">
             </div>
             <div class="col">
                 <input type="text" class="form-control" id="subpartApiUrl" placeholder="Subpart API URL">
@@ -61,7 +61,7 @@
                 success: function(data) {
                     const unitsAvailable = parseFloat(data.number_of_units);
                     if (unitsToBuy > unitsAvailable) {
-                        alert("Error: Your request exceeds the amount available from the subcontractor.");
+                        alert("Error: Your request exceeds the amount available from the submanufacturer.");
                     } else {
                         const newSubPartUnits = unitsAvailable - unitsToBuy; // Calculate new subpart units
                         const subpartHtml = `

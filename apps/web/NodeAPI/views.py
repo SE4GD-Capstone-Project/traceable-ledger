@@ -1,8 +1,8 @@
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from rest_framework import viewsets
-from .models import Product,Subpart,ProductSubpart,SubContractor
-from .serializers import ProductSerializer,ProductSubpartSerializer,SubpartSerializer,SubContractorSerializer
+from .models import Product,Subpart,ProductSubpart,SubManufacturer
+from .serializers import ProductSerializer,ProductSubpartSerializer,SubpartSerializer,SubManufacturerSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -80,9 +80,9 @@ class ProductSubpartViewSet(viewsets.ModelViewSet):
         else:
             return super(ProductSubpartViewSet, self).create(request, *args, **kwargs)
 
-class SubContractorViewSet(viewsets.ModelViewSet):
-    queryset = SubContractor.objects.all()
-    serializer_class = SubContractorSerializer
+class SubManufacturerViewSet(viewsets.ModelViewSet):
+    queryset = SubManufacturer.objects.all()
+    serializer_class = SubManufacturerSerializer
 
     def create(self, request, *args, **kwargs):
         data = request.data
@@ -92,7 +92,7 @@ class SubContractorViewSet(viewsets.ModelViewSet):
             self.perform_create(serializer)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return super(SubContractorViewSet, self).create(request, *args, **kwargs)
+            return super(SubManufacturerViewSet, self).create(request, *args, **kwargs)
 
 
 from .serializers import TransactionLogSerializer

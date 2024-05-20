@@ -3,9 +3,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver 
  
  
-class SubContractor(models.Model): 
+class SubManufacturer(models.Model):
     name = models.CharField(max_length=100, blank=True) 
-    # Include other fields as necessary for subcontractors 
+    # Include other fields as necessary for submanufacturers 
  
     def __str__(self): 
         return self.name 
@@ -14,8 +14,8 @@ class Subpart(models.Model):
     name = models.CharField(max_length=100) 
     co2_footprint = models.FloatField(help_text="CO2 footprint per unit") 
     quantity_needed_per_unit = models.FloatField(help_text="Quantity of the subpart needed to make one unit of product") 
-    units_bought = models.FloatField(help_text="Number of units to buy from the subcontractor") 
-    contractor = models.ForeignKey(SubContractor, on_delete=models.CASCADE, blank=True, null=True) 
+    units_bought = models.FloatField(help_text="Number of units to buy from the submanufacturer") 
+    manufacturer = models.ForeignKey(SubManufacturer, on_delete=models.CASCADE, blank=True, null=True)
     # You might include other fields relevant to subparts, such as a unit price, etc. 
  
     def __str__(self): 
@@ -27,6 +27,7 @@ class Product(models.Model):
     number_of_units = models.IntegerField(help_text="Number of units available")
     co2_footprint = models.FloatField()
     subparts = models.ManyToManyField(Subpart, related_name='products')
+    manufacturer = models.ForeignKey(SubManufacturer, on_delete=models.CASCADE, blank=True, null=True)
      
      
     def __str__(self): 
@@ -40,7 +41,7 @@ class Product(models.Model):
 #     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_subparts') 
 #     subpart = models.ForeignKey(Subpart, on_delete=models.CASCADE) 
 #     quantity_needed_per_unit = models.FloatField(help_text="Quantity of the subpart needed to make one unit of product") 
-#     units_to_buy = models.FloatField(help_text="Number of units to buy from the subcontractor") 
+#     units_to_buy = models.FloatField(help_text="Number of units to buy from the submanufacturer") 
  
 #     def __str__(self): 
 #         return f"{self.subpart.name} for {self.product.name}" 
@@ -48,7 +49,7 @@ class Product(models.Model):
 #     def save(self, *args, **kwargs): 
 #         super(ProductSubpart,self).save(*args, **kwargs) 
 #         buyer_id = "123" 
-#         seller_id = str(self.subpart.contractor) 
+#         seller_id = str(self.subpart.manufacturer) 
 #         product_id = str(self.product) 
 #         subpart_id = str(self.subpart) 
 #         amount = str(self.units_to_buy) 
@@ -65,7 +66,7 @@ class ProductSubpart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_subparts') 
     subpart = models.ForeignKey(Subpart, on_delete=models.CASCADE) 
     quantity_needed_per_unit = models.FloatField(help_text="Quantity of the subpart needed to make one unit of product") 
-    units_to_buy = models.FloatField(help_text="Number of units to buy from the subcontractor") 
+    units_to_buy = models.FloatField(help_text="Number of units to buy from the submanufacturer") 
  
     def __str__(self): 
         return f"{self.subpart.name} for {self.product.name}" 
@@ -80,7 +81,7 @@ from django.dispatch import receiver
 #         for subpart in instance.subparts.all():
 #             TransactionLog.objects.create(
 #                 buyer_id="123",  # Assuming this is a fixed value or could be dynamic based on other logic
-#                 seller_id=str(subpart.contractor),
+#                 seller_id=str(subpart.manufacturer),
 #                 product_id=str(instance.id),
 #                 subpart_id=str(subpart.id),
 #                 amount=str(subpart.units_bought)

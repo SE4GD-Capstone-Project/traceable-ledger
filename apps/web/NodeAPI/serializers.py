@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from .models import Product, Subpart, ProductSubpart,SubContractor
+from .models import Product, Subpart, ProductSubpart,SubManufacturer
 
 # # Serializer for Subpart
 # class SubpartSerializer(serializers.ModelSerializer):
-#     contractor_name = serializers.CharField(source='contractor.name', read_only=True)  # Assuming you might want the contractor's name
+#     manufacturer_name = serializers.CharField(source='manufacturer.name', read_only=True)  # Assuming you might want the manufacturer's name
 
 #     class Meta:
 #         model = Subpart
-#         fields = ['id', 'name', 'co2_footprint', 'contractor_name']
+#         fields = ['id', 'name', 'co2_footprint', 'manufacturer_name']
 
 # # Serializer for ProductSubpart which uses SubpartSerializer
 # class ProductSubpartSerializer(serializers.ModelSerializer):
@@ -28,46 +28,50 @@ from .models import Product, Subpart, ProductSubpart,SubContractor
 #         fields = ['id', 'name', 'number_of_units', 'co2_per_unit', 'subparts']
 
 
-class SubContractorSerializer(serializers.ModelSerializer):
+class SubManufacturerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SubContractor
+        model = SubManufacturer
         fields = '__all__'
 
 
 class SubpartSerializer(serializers.ModelSerializer):
-    contractor = SubContractorSerializer()
+    manufacturer = SubManufacturerSerializer()
     class Meta:
         model = Subpart
         fields = '__all__'
     
     def create(self, validated_data):
-        contractor_data = validated_data.pop('contractor')
-        contractor, created = SubContractor.objects.get_or_create(**contractor_data)
-        subpart = Subpart.objects.create(contractor=contractor, **validated_data)
+        manufacturer_data = validated_data.pop('manufacturer')
+        manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
+        subpart = Subpart.objects.create(manufacturer=manufacturer, **validated_data)
         return subpart
 
 
 class ProductSerializer(serializers.ModelSerializer):
     subparts = SubpartSerializer(many=True)
+    manufacturer = SubManufacturerSerializer()
     class Meta:
         model = Product
         fields = '__all__'
     
     def create(self, validated_data):
         subparts_data = validated_data.pop('subparts')
-        product = Product.objects.create(**validated_data)
-        
+        manufacturer_data = validated_data.pop("manufacturer")
+        manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
+
+        product = Product.objects.create(manufacturer=manufacturer,**validated_data)
+
         for subpart_data in subparts_data:
-            contractor_data = subpart_data.pop('contractor')
-            contractor, created = SubContractor.objects.get_or_create(**contractor_data)
-            subpart, created = Subpart.objects.get_or_create(contractor=contractor, **subpart_data)
+            manufacturer_data = subpart_data.pop('manufacturer')
+            manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
+            subpart, created = Subpart.objects.get_or_create(manufacturer=manufacturer, **subpart_data)
             product.subparts.add(subpart)
 
 
             # Create TransactionLog for each subpart
             TransactionLog.objects.create(
                 buyer_id="123",  # Assuming this is a fixed value or could be dynamic based on other logic
-                seller_id=str(subpart.contractor),
+                seller_id=str(subpart.manufacturer),
                 product_id=str(product.id),
                 subpart_id=str(subpart.id),
                 amount=subpart.units_bought
@@ -86,15 +90,15 @@ class ProductSerializer(serializers.ModelSerializer):
 
         if subparts_data:
             for subpart_data in subparts_data:
-                contractor_data = subpart_data.pop('contractor')
-                contractor, created = SubContractor.objects.get_or_create(**contractor_data)
-                subpart, created = Subpart.objects.get_or_create(contractor=contractor, **subpart_data)
+                manufacturer_data = subpart_data.pop('manufacturer')
+                manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
+                subpart, created = Subpart.objects.get_or_create(manufacturer=manufacturer, **subpart_data)
                 instance.subparts.add(subpart)
                 
                 # Create TransactionLog for each subpart
                 TransactionLog.objects.create(
                     buyer_id="123",  # Assuming this is a fixed value or could be dynamic based on other logic
-                    seller_id=str(subpart.contractor),
+                    seller_id=str(subpart.manufacturer),
                     product_id=str(instance.id),
                     subpart_id=str(subpart.id),
                     amount=subpart.units_bought
