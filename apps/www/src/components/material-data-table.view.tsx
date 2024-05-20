@@ -34,6 +34,10 @@ export const materialDataTableColumns = (
             header: "Name",
         },
         {
+            accessorKey: "manufacturer.name",
+            header: "Manufacturer",
+        },
+        {
             accessorKey: "unitsUsedPerProduct",
             header: "Units used per product",
         },

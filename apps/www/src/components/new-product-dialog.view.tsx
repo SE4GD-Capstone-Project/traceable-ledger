@@ -74,6 +74,9 @@ export default function NewProductDialog() {
                                   quantity_needed_per_unit:
                                       material.unitsUsedPerProduct,
                                   units_bought: material.unitsToBuy,
+                                  manufacturer: {
+                                      name: material.manufacturer.name,
+                                  },
                               };
                           })
                         : [],
@@ -120,6 +123,7 @@ export default function NewProductDialog() {
                 .then((res) => res.json())
                 .then((data: ProductType) => {
                     if (data) {
+                        delete data.manufacturer.id;
                         if (materialList) {
                             setMaterialList([
                                 ...materialList,
