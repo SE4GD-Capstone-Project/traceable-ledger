@@ -21,18 +21,42 @@ import {
 } from "./ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Pencil2Icon, CheckIcon, CopyIcon } from "@radix-ui/react-icons";
-import { getProductUrl } from "@/utils/utils";
+import { getProductUrl, preferencesUrlHandler } from "@/utils/utils";
 import { ProductCardProps } from "./types/product.api";
-import { MaterialDataTable, materialDataTableColumns } from "./material-data-table.view";
-
+import {
+    MaterialDataTable,
+    materialDataTableColumns,
+} from "./material-data-table.view";
+import Image from "next/image";
 
 export default function ProductCard(props: ProductCardProps) {
     const [isCopyButtonClicked, setIsCopyButtonClicked] = React.useState(false);
-
+    const [imageUrl, setImageUrl] = React.useState("");
     const handleCopyUrlButtonClick = React.useCallback(() => {
         setIsCopyButtonClicked(true);
         navigator.clipboard.writeText(getProductUrl(props.id) ?? "");
     }, [props.id]);
+
+    React.useEffect(() => {
+        console.log(preferencesUrlHandler() + "/product/");
+        const fetchData = async () => {
+            const response = await fetch(
+                preferencesUrlHandler() + "/product/",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        productName: String(props.title),
+                    }),
+                }
+            );
+            const data = await response.json();
+            setImageUrl(data.imageUrl);
+        };
+        fetchData();
+    }, [setImageUrl, props.title]);
 
     React.useEffect(() => {
         if (isCopyButtonClicked) {
@@ -50,7 +74,11 @@ export default function ProductCard(props: ProductCardProps) {
                 <CardTitle>{props.title}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-                <Skeleton className="h-[200px] w-full rounded-xl" />
+                {imageUrl === "" ? (
+                    <Skeleton className="h-[200px] w-full rounded-xl" />
+                ) : (
+                    <Image alt="product-image" src={imageUrl} />
+                )}
                 {typeof props.description == "string" ? (
                     <CardDescription>{props.description}</CardDescription>
                 ) : (
@@ -74,7 +102,14 @@ export default function ProductCard(props: ProductCardProps) {
                                 className="pb-4"
                             >
                                 <ScrollArea className="h-full">
-                                    <Skeleton className="h-[300px] w-full rounded-xl my-8" />
+                                    {imageUrl === "" ? (
+                                        <Skeleton className="h-[300px] w-full rounded-xl my-8" />
+                                    ) : (
+                                        <Image
+                                            alt="product-image"
+                                            src={imageUrl}
+                                        />
+                                    )}
                                     <div className="flex items-center gap-4">
                                         <p>
                                             Product URL:{" "}
@@ -103,9 +138,9 @@ export default function ProductCard(props: ProductCardProps) {
                                     </p>
                                     <p>CO2 per Unit: {props.co2PerUnit}</p>
                                     <MaterialDataTable
-                            columns={materialDataTableColumns()}
-                            data={props.subparts ?? []}
-                        />
+                                        columns={materialDataTableColumns()}
+                                        data={props.subparts ?? []}
+                                    />
                                 </ScrollArea>
                             </div>
                             <SheetFooter>

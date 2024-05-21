@@ -11,7 +11,7 @@ export interface ProductType {
     manufacturer: ManufacturerType;
     number_of_units: number;
     co2_footprint: number;
-    subparts?: ProductType[];
+    subparts?: SubpartType[];
 }
 
 export interface SubpartType extends ProductType {
@@ -32,4 +32,5 @@ export interface ProductCardProps {
     image?: React.ReactNode;
     numberOfUnits?: number;
     co2PerUnit?: number;
+    subparts?: SubpartType[];
 }

@@ -33,7 +33,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export default function NewProductDialog() {
+export default function NewProductDialog(props: { onCreateProduct(): void }) {
     const { theme, companyName } = React.useContext(PreferenceContext);
     const [productInfo, setProductInfo] = React.useState<ProductType>({
         id: "",
@@ -111,9 +111,10 @@ export default function NewProductDialog() {
                     toast("Product has been created successfully.", {
                         description: currentDateTime,
                     });
-                });
+                })
+                .then(() => props.onCreateProduct());
         }
-    }, [productInfo, materialList]);
+    }, [productInfo, materialList, props]);
 
     const handleAddMaterialButtonClick = React.useCallback(() => {
         if (materialFormValues.productURL !== "") {

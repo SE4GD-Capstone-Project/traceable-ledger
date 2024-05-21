@@ -16,24 +16,27 @@ export default function Products() {
                     id: "1",
                     manufacturer: {
                         id: 2,
-                        name: "Greenergy Oy"
+                        name: "Greenergy Oy",
                     },
                     name: "Green Electricity",
                     co2_footprint: 2,
                     unitsUsedPerProduct: 2,
-                    unitsToBuy: 200
-                }
+                    unitsToBuy: 200,
+                    number_of_units: 300,
+                    productURL: "",
+                },
             ],
             manufacturer: {
                 id: 1,
-                name: "Miningful Oyj"
+                name: "Miningful Oyj",
             },
             name: "Steel",
             number_of_units: 100,
-            co2_footprint: 20
-        }
+            co2_footprint: 20,
+        },
     ]);
-    React.useEffect(() => {
+
+    const fetchData = React.useCallback(() => {
         if (typeof window !== "undefined") {
             const origin = window.location.origin;
             fetch(`${urlHandler(origin)}/api/products/`)
@@ -41,23 +44,18 @@ export default function Products() {
                 .then((data) => {
                     if (Array.isArray(data)) setProducts(data);
                 });
-            const interval = setInterval(() => {
-                fetch(`${urlHandler(origin)}/api/products/`)
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (Array.isArray(data)) setProducts(data);
-                    });
-            }, 30000);
-            return () => clearInterval(interval);
         }
-    }, []);
-    console.log(products);
+    }, [setProducts]);
+
+    React.useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     return (
         <div className="flex gap-4 flex-col">
             <div className="w-full">
                 <div className="flex justify-end pt-4">
-                    <NewProductDialog />
+                    <NewProductDialog onCreateProduct={fetchData} />
                 </div>
             </div>
             <p className="text-xl font-bold dark:text-white">
