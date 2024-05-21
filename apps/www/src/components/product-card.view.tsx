@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import {
     Card,
     CardContent,
@@ -20,9 +21,10 @@ import {
 } from "./ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Pencil2Icon, CheckIcon, CopyIcon } from "@radix-ui/react-icons";
-import React from "react";
 import { getProductUrl } from "@/utils/utils";
 import { ProductCardProps } from "./types/product.api";
+import { MaterialDataTable, materialDataTableColumns } from "./material-data-table.view";
+
 
 export default function ProductCard(props: ProductCardProps) {
     const [isCopyButtonClicked, setIsCopyButtonClicked] = React.useState(false);
@@ -100,6 +102,10 @@ export default function ProductCard(props: ProductCardProps) {
                                         <a>{props.numberOfUnits}</a>
                                     </p>
                                     <p>CO2 per Unit: {props.co2PerUnit}</p>
+                                    <MaterialDataTable
+                            columns={materialDataTableColumns()}
+                            data={props.subparts ?? []}
+                        />
                                 </ScrollArea>
                             </div>
                             <SheetFooter>

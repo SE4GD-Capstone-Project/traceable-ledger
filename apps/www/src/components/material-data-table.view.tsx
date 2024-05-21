@@ -52,12 +52,12 @@ export const materialDataTableColumns = (
                 return row.original.co2_footprint * row.original.unitsToBuy;
             },
         },
-        {
-            accessorKey: "productURL",
-            header: "Product URL",
-        },
     ];
     if (onDelete) {
+        columns.push({
+            accessorKey: "productURL",
+            header: "Product URL",
+        });
         columns.push({
             id: "actions",
             header: "Actions",

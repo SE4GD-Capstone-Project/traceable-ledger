@@ -8,7 +8,31 @@ import NewProductDialog from "@/components/new-product-dialog.view";
 import { ProductType } from "@/components/types/product.api";
 
 export default function Products() {
-    const [products, setProducts] = React.useState<ProductType[]>([]);
+    const [products, setProducts] = React.useState<ProductType[]>([
+        {
+            id: "1",
+            subparts: [
+                {
+                    id: "1",
+                    manufacturer: {
+                        id: 2,
+                        name: "Greenergy Oy"
+                    },
+                    name: "Green Electricity",
+                    co2_footprint: 2,
+                    unitsUsedPerProduct: 2,
+                    unitsToBuy: 200
+                }
+            ],
+            manufacturer: {
+                id: 1,
+                name: "Miningful Oyj"
+            },
+            name: "Steel",
+            number_of_units: 100,
+            co2_footprint: 20
+        }
+    ]);
     React.useEffect(() => {
         if (typeof window !== "undefined") {
             const origin = window.location.origin;
@@ -50,6 +74,7 @@ export default function Products() {
                                 numberOfUnits={item.number_of_units}
                                 co2PerUnit={item.co2_footprint}
                                 id={Number(item.id)}
+                                subparts={item.subparts}
                             />
                         );
                     })
