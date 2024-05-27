@@ -38,7 +38,11 @@ export const materialDataTableColumns = (
             header: "Manufacturer",
         },
         {
-            accessorKey: "unitsUsedPerProduct",
+            accessorKey: "productURL",
+            header: "Product URL",
+        },
+        {
+            accessorKey: "quantity_needed_per_unit",
             header: "Units used per product",
         },
         {
@@ -49,15 +53,11 @@ export const materialDataTableColumns = (
             id: "total",
             header: "Total CO2 used",
             cell: ({ row }) => {
-                return row.original.co2_footprint * row.original.unitsToBuy;
+                return row.original.co2_footprint * row.original.units_bought;
             },
         },
     ];
     if (onDelete) {
-        columns.push({
-            accessorKey: "productURL",
-            header: "Product URL",
-        });
         columns.push({
             id: "actions",
             header: "Actions",
@@ -91,7 +91,7 @@ export function MaterialDataTable<TData, TValue>({
     const totalCO2 = React.useMemo(() => {
         let totalCO2 = 0;
         data?.forEach((material) => {
-            totalCO2 += material.co2_footprint * material.unitsToBuy;
+            totalCO2 += material.co2_footprint * material.units_bought;
         });
         return totalCO2;
     }, [data]);
@@ -151,11 +151,13 @@ export function MaterialDataTable<TData, TValue>({
                     </TableBody>
                     <TableFooter className={"sticky bottom-0 bg-secondary"}>
                         <TableRow>
-                            <TableCell colSpan={3}>
+                            <TableCell colSpan={5}>
                                 Total CO2 from materials
                             </TableCell>
                             <TableCell colSpan={1}>{totalCO2}</TableCell>
-                            <TableCell colSpan={2}></TableCell>
+                            {columns.find(
+                                (value) => value.id === "actions"
+                            ) && <TableCell colSpan={1}></TableCell>}
                         </TableRow>
                     </TableFooter>
                 </Table>

@@ -49,7 +49,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
     const [materialFormValues, setMaterialFormValues] =
         React.useState<MaterialFormValueType>({
             productURL: "",
-            unitsUsedPerProduct: 0,
+            quantity_needed_per_unit: 0,
         });
 
     const handleCreateButtonClick = React.useCallback(() => {
@@ -72,8 +72,8 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                   name: material.name,
                                   co2_footprint: material.co2_footprint,
                                   quantity_needed_per_unit:
-                                      material.unitsUsedPerProduct,
-                                  units_bought: material.unitsToBuy,
+                                      material.quantity_needed_per_unit,
+                                  units_bought: material.units_bought,
                                   manufacturer: {
                                       name: material.manufacturer.name,
                                   },
@@ -92,7 +92,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 //should have modifier info to save to logs
                                 number_of_units:
                                     material.number_of_units -
-                                    material.unitsToBuy,
+                                    material.units_bought,
                             }),
                         });
                     });
@@ -130,10 +130,10 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 ...materialList,
                                 {
                                     ...data,
-                                    unitsUsedPerProduct:
-                                        materialFormValues.unitsUsedPerProduct,
-                                    unitsToBuy:
-                                        materialFormValues.unitsUsedPerProduct *
+                                    quantity_needed_per_unit:
+                                        materialFormValues.quantity_needed_per_unit,
+                                    units_bought:
+                                        materialFormValues.quantity_needed_per_unit *
                                         productInfo.number_of_units,
                                     productURL: materialFormValues.productURL,
                                 },
@@ -142,10 +142,10 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                             setMaterialList([
                                 {
                                     ...data,
-                                    unitsUsedPerProduct:
-                                        materialFormValues.unitsUsedPerProduct,
-                                    unitsToBuy:
-                                        materialFormValues.unitsUsedPerProduct *
+                                    quantity_needed_per_unit:
+                                        materialFormValues.quantity_needed_per_unit,
+                                    units_bought:
+                                        materialFormValues.quantity_needed_per_unit *
                                         productInfo.number_of_units,
                                     productURL: materialFormValues.productURL,
                                 },
@@ -156,7 +156,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                 .then(() =>
                     setMaterialFormValues({
                         productURL: "",
-                        unitsUsedPerProduct: 0,
+                        quantity_needed_per_unit: 0,
                     })
                 );
         }
@@ -190,7 +190,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                     });
                     setMaterialFormValues({
                         productURL: "",
-                        unitsUsedPerProduct: 0,
+                        quantity_needed_per_unit: 0,
                     });
                 }}
             >
@@ -304,15 +304,15 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                     const parsedValue = parseInt(event.target.value);
                                     setMaterialFormValues({
                                         ...materialFormValues,
-                                        unitsUsedPerProduct: Number.isNaN(parsedValue) || parsedValue < 0
+                                        quantity_needed_per_unit: Number.isNaN(parsedValue) || parsedValue < 0
                                         ? 0
                                         : parsedValue,
                                 });
                             }}
                             value={
-                                materialFormValues.unitsUsedPerProduct === 0
+                                materialFormValues.quantity_needed_per_unit === 0
                                     ? ""
-                                    : materialFormValues.unitsUsedPerProduct
+                                    : materialFormValues.quantity_needed_per_unit
                             }
                         />
                             <Input
@@ -327,7 +327,8 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 }}
                                 value={materialFormValues.productURL}
                             />
-                            {materialFormValues.unitsUsedPerProduct !== 0 &&
+                            {materialFormValues.quantity_needed_per_unit !==
+                                0 &&
                             productInfo.number_of_units !== 0 &&
                             materialFormValues.productURL !== "" ? (
                                 <Button

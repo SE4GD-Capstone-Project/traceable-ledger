@@ -15,13 +15,13 @@ export interface ProductType {
 }
 
 export interface SubpartType extends ProductType {
-    unitsToBuy: number;
-    unitsUsedPerProduct: number;
+    units_bought: number;
+    quantity_needed_per_unit: number;
     productURL: string;
 }
 
 export interface MaterialFormValueType {
-    unitsUsedPerProduct: number;
+    quantity_needed_per_unit: number;
     productURL: string;
 }
 

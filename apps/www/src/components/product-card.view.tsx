@@ -65,7 +65,7 @@ export default function ProductCard(props: ProductCardProps) {
     }, [isCopyButtonClicked]);
 
     return (
-        <Card className="w-[350px]">
+        <Card className="w-[320px]">
             <CardHeader>
                 <CardTitle>{props.title}</CardTitle>
             </CardHeader>
@@ -76,7 +76,7 @@ export default function ProductCard(props: ProductCardProps) {
                     <img
                         alt="product-image"
                         src={imageUrl}
-                        className="h-[200px] w-full rounded-xl"
+                        className="h-[200px] w-full rounded-xl object-contain"
                     />
                 )}
                 {typeof props.description == "string" ? (
@@ -91,7 +91,7 @@ export default function ProductCard(props: ProductCardProps) {
                         <SheetTrigger asChild>
                             <Button>More info</Button>
                         </SheetTrigger>
-                        <SheetContent className="w-[800px] sm:w-[800px] sm:max-w-[800px]">
+                        <SheetContent className="w-[80vw] sm:w-[80vw] sm:max-w-[80vw]">
                             <SheetHeader>
                                 <SheetTitle>
                                     Product name: {props.title}
@@ -108,12 +108,14 @@ export default function ProductCard(props: ProductCardProps) {
                                         <img
                                             alt="product-image"
                                             src={imageUrl}
-                                            className="h-[300px] w-full rounded-xl my-8"
+                                            className="h-[300px] w-full rounded-xl my-8 object-contain"
                                         />
                                     )}
                                     <div className="flex items-center gap-4">
                                         <p>
-                                            Product URL:{" "}
+                                            <span className="font-semibold">
+                                                Product URL:
+                                            </span>{" "}
                                             <a>{getProductUrl(props.id)}</a>
                                         </p>
                                         <Button
@@ -133,11 +135,23 @@ export default function ProductCard(props: ProductCardProps) {
                                             )}
                                         </Button>
                                     </div>
-                                    <p>
-                                        Number of Units:{" "}
+                                    <p className="mb-2">
+                                        <span className="font-semibold">
+                                            Number of Units:{" "}
+                                        </span>{" "}
                                         <a>{props.numberOfUnits}</a>
                                     </p>
-                                    <p>CO2 per Unit: {props.co2PerUnit}</p>
+                                    <p className="mb-2">
+                                        <span className="font-semibold">
+                                            CO2 per Unit:
+                                        </span>{" "}
+                                        {props.co2PerUnit}
+                                    </p>
+                                    <p className="mb-2">
+                                        <span className="font-semibold">
+                                            Materials used:
+                                        </span>
+                                    </p>
                                     <MaterialDataTable
                                         columns={materialDataTableColumns()}
                                         data={props.subparts ?? []}

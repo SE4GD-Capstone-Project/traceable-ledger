@@ -12,7 +12,6 @@ export async function POST(req: Request) {
     const dom = new JSDOM(html);
     const document = dom.window.document;
     const imageUrl = document.querySelector(".mimg")?.getAttribute("src");
-    console.log(imageUrl);
     return new Response(`{"imageUrl": "${imageUrl}"}`, {
         status: 200,
         headers: {
