@@ -70,11 +70,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
             # Create TransactionLog for each subpart
             TransactionLog.objects.create(
-                buyer_id="123",  # Assuming this is a fixed value or could be dynamic based on other logic
+                buyer_id=str(product.manufacturer),  # Assuming this is a fixed value or could be dynamic based on other logic
                 seller_id=str(subpart.manufacturer),
                 product_id=str(product.id),
                 subpart_id=str(subpart.id),
-                amount=subpart.units_bought
+                amount=subpart.units_bought,
+                sustainability_data = str(subpart.get_sustainablity_data())
             )
         
         return product
@@ -85,7 +86,7 @@ class ProductSerializer(serializers.ModelSerializer):
         # Update the product fields if provided
         instance.name = validated_data.get('name', instance.name)
         instance.number_of_units = validated_data.get('number_of_units', instance.number_of_units)
-        instance.co2_footprint_per_unit = validated_data.get('co2_footprint_per_unit', instance.co2_footprint_per_unit)
+        instance.co2_footprint = validated_data.get('co2_footprint', instance.co2_footprint)
         instance.save()
 
         if subparts_data:
@@ -97,7 +98,7 @@ class ProductSerializer(serializers.ModelSerializer):
                 
                 # Create TransactionLog for each subpart
                 TransactionLog.objects.create(
-                    buyer_id="123",  # Assuming this is a fixed value or could be dynamic based on other logic
+                    buyer_id=instance.manufacturer,  # Assuming this is a fixed value or could be dynamic based on other logic
                     seller_id=str(subpart.manufacturer),
                     product_id=str(instance.id),
                     subpart_id=str(subpart.id),

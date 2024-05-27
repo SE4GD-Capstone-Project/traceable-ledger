@@ -20,6 +20,9 @@ class Subpart(models.Model):
  
     def __str__(self): 
         return self.name 
+    def get_sustainablity_data(self):
+        data = {"co2_footprint": self.co2_footprint}
+        return data
  
 
 class Product(models.Model): 
@@ -35,7 +38,8 @@ class Product(models.Model):
     
     def __hash__(self) -> int: 
         return hash((self.co2_footprint))
- 
+
+    
  
 # class ProductSubpart(models.Model): 
 #     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_subparts') 
@@ -93,7 +97,8 @@ class TransactionLog(models.Model):
     product_id = models.CharField(max_length=100) 
     subpart_id = models.CharField(max_length=100) 
     amount = models.FloatField(max_length=100) 
-    date = models.DateTimeField(auto_now=True) 
+    date = models.DateTimeField(auto_now=True)
+    sustainability_data = models.CharField(max_length=1000,blank=True, null=True) 
     log_hash = models.CharField(max_length=100) 
     def __hash__(self) -> int: 
         return hash(( 
@@ -103,6 +108,7 @@ class TransactionLog(models.Model):
             self.subpart_id,  
             self.amount, 
             self.date, 
+            self.sustainability_data
             ) )
      
     def save(self, *args, **kwargs):
