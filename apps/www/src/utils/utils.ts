@@ -16,6 +16,17 @@ export function preferencesUrlHandler(): string {
     return "http://localhost:3000/api";
 }
 
+export function imagesUrlHandler(): string {
+    if (
+        typeof window !== "undefined" &&
+        window.location.origin !== "http://localhost:3000"
+    ) {
+        const origin = window.location.origin;
+        return `${origin}/product-image-api`;
+    }
+    return "http://localhost:3000/api";
+}
+
 export function getProductUrl(id: number): string | undefined {
     if (typeof window !== "undefined") {
         const origin = window.location.origin;

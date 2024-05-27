@@ -21,13 +21,12 @@ import {
 } from "./ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Pencil2Icon, CheckIcon, CopyIcon } from "@radix-ui/react-icons";
-import { getProductUrl, preferencesUrlHandler } from "@/utils/utils";
+import { getProductUrl, imagesUrlHandler } from "@/utils/utils";
 import { ProductCardProps } from "./types/product.api";
 import {
     MaterialDataTable,
     materialDataTableColumns,
 } from "./material-data-table.view";
-import Image from "next/image";
 
 export default function ProductCard(props: ProductCardProps) {
     const [isCopyButtonClicked, setIsCopyButtonClicked] = React.useState(false);
@@ -38,20 +37,17 @@ export default function ProductCard(props: ProductCardProps) {
     }, [props.id]);
 
     React.useEffect(() => {
-        console.log(preferencesUrlHandler() + "/product/");
+        console.log(imagesUrlHandler());
         const fetchData = async () => {
-            const response = await fetch(
-                preferencesUrlHandler() + "/product/",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        productName: String(props.title),
-                    }),
-                }
-            );
+            const response = await fetch(imagesUrlHandler(), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    productName: String(props.title),
+                }),
+            });
             const data = await response.json();
             setImageUrl(data.imageUrl);
         };
@@ -74,10 +70,14 @@ export default function ProductCard(props: ProductCardProps) {
                 <CardTitle>{props.title}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-                {imageUrl === "" ? (
+                {imageUrl === "" || imageUrl === "null" ? (
                     <Skeleton className="h-[200px] w-full rounded-xl" />
                 ) : (
-                    <Image alt="product-image" src={imageUrl} />
+                    <img
+                        alt="product-image"
+                        src={imageUrl}
+                        className="h-[200px] w-full rounded-xl"
+                    />
                 )}
                 {typeof props.description == "string" ? (
                     <CardDescription>{props.description}</CardDescription>
@@ -102,12 +102,13 @@ export default function ProductCard(props: ProductCardProps) {
                                 className="pb-4"
                             >
                                 <ScrollArea className="h-full">
-                                    {imageUrl === "" ? (
+                                    {imageUrl === "" || imageUrl === "null" ? (
                                         <Skeleton className="h-[300px] w-full rounded-xl my-8" />
                                     ) : (
-                                        <Image
+                                        <img
                                             alt="product-image"
                                             src={imageUrl}
+                                            className="h-[300px] w-full rounded-xl my-8"
                                         />
                                     )}
                                     <div className="flex items-center gap-4">
