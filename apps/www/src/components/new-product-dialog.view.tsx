@@ -299,22 +299,22 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 placeholder="Units used per product. E.g: 20"
                                 className="col-span-3"
                                 type="number"
+                                min = "0"
                                 onChange={(event) => {
+                                    const parsedValue = parseInt(event.target.value);
                                     setMaterialFormValues({
                                         ...materialFormValues,
-                                        unitsUsedPerProduct: Number.isNaN(
-                                            parseInt(event.target.value)
-                                        )
-                                            ? 0
-                                            : parseInt(event.target.value),
-                                    });
-                                }}
-                                value={
-                                    materialFormValues.unitsUsedPerProduct === 0
-                                        ? ""
-                                        : materialFormValues.unitsUsedPerProduct
-                                }
-                            />
+                                        unitsUsedPerProduct: Number.isNaN(parsedValue) || parsedValue < 0
+                                        ? 0
+                                        : parsedValue,
+                                });
+                            }}
+                            value={
+                                materialFormValues.unitsUsedPerProduct === 0
+                                    ? ""
+                                    : materialFormValues.unitsUsedPerProduct
+                            }
+                        />
                             <Input
                                 id="co2-per-unit"
                                 placeholder="Product's API. E.g: https://example.api.com/products/1"
