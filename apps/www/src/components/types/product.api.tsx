@@ -2,6 +2,7 @@ import React from "react";
 
 export interface ManufacturerType {
     name: string;
+    mainURL: string;
     id?: number;
 }
 

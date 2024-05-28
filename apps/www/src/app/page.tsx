@@ -17,6 +17,7 @@ export default function Products() {
                     manufacturer: {
                         id: 2,
                         name: "Greenergy Oy",
+                        mainURL: "http://0.0.0.0",
                     },
                     name: "Green Electricity",
                     co2_footprint: 2,
@@ -29,6 +30,7 @@ export default function Products() {
             manufacturer: {
                 id: 1,
                 name: "Miningful Oyj",
+                mainURL: "http://0.0.0.0",
             },
             name: "Steel",
             number_of_units: 100,

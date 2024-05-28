@@ -4,8 +4,9 @@ from django.dispatch import receiver
  
  
 class SubManufacturer(models.Model):
-    name = models.CharField(max_length=100, blank=True) 
-    # Include other fields as necessary for submanufacturers 
+    name = models.CharField(max_length=100, blank=True)
+    mainURL = models.CharField(max_length=100, blank=True)
+# Include other fields as necessary for submanufacturers
  
     def __str__(self): 
         return self.name 

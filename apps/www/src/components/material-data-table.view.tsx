@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
 import { SubpartType } from "@/components/types/product.api";
-import { TrashIcon } from "@radix-ui/react-icons";
+import { TrashIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -38,8 +38,27 @@ export const materialDataTableColumns = (
             header: "Manufacturer",
         },
         {
-            accessorKey: "productURL",
+            id: "productURL",
             header: "Product URL",
+            cell: ({ row }) => {
+                let url =
+                    row.original.manufacturer.mainURL +
+                    "/products/" +
+                    row.original.id;
+                if (onDelete) {
+                    url = row.original.productURL;
+                }
+                return (
+                    <a
+                        href={url}
+                        className={
+                            "text-blue-400 underline flex items-center gap-1 w-fit"
+                        }
+                    >
+                        {url} <ExternalLinkIcon />
+                    </a>
+                );
+            },
         },
         {
             accessorKey: "quantity_needed_per_unit",

@@ -37,7 +37,6 @@ export default function ProductCard(props: ProductCardProps) {
     }, [props.id]);
 
     React.useEffect(() => {
-        console.log(imagesUrlHandler());
         const fetchData = async () => {
             const response = await fetch(imagesUrlHandler(), {
                 method: "POST",
@@ -114,9 +113,16 @@ export default function ProductCard(props: ProductCardProps) {
                                     <div className="flex items-center gap-4">
                                         <p>
                                             <span className="font-semibold">
-                                                Product URL:
+                                                Product API URL:
                                             </span>{" "}
-                                            <a>{getProductUrl(props.id)}</a>
+                                            <a
+                                                href={getProductUrl(props.id)}
+                                                className={
+                                                    "text-blue-400 underline"
+                                                }
+                                            >
+                                                {getProductUrl(props.id)}
+                                            </a>
                                         </p>
                                         <Button
                                             variant="ghost"

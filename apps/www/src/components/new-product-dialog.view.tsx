@@ -40,6 +40,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
         name: "",
         manufacturer: {
             name: companyName,
+            mainURL: "",
         },
         co2_footprint: 0,
         number_of_units: 0,
@@ -63,7 +64,10 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                     manufacturer:
                         productInfo.manufacturer.name === ""
                             ? { name: "test inc" }
-                            : { name: productInfo.manufacturer.name },
+                            : {
+                                  name: productInfo.manufacturer.name,
+                                  mainURL: urlHandler(origin),
+                              },
                     co2_footprint: productInfo.co2_footprint,
                     number_of_units: productInfo.number_of_units,
                     subparts: materialList
@@ -76,6 +80,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                   units_bought: material.units_bought,
                                   manufacturer: {
                                       name: material.manufacturer.name,
+                                      mainURL: material.manufacturer.mainURL,
                                   },
                               };
                           })
@@ -85,7 +90,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                 .then((response) => response.json())
                 .then(() => {
                     materialList?.forEach((material) => {
-                        fetch(material.productURL, {
+                        fetch(material.productURL + "/", {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -184,7 +189,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                     setProductInfo({
                         id: "",
                         name: "",
-                        manufacturer: { name: companyName },
+                        manufacturer: { name: companyName, mainURL: "" },
                         co2_footprint: 0,
                         number_of_units: 0,
                     });
@@ -299,22 +304,27 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 placeholder="Units used per product. E.g: 20"
                                 className="col-span-3"
                                 type="number"
-                                min = "0"
+                                min="0"
                                 onChange={(event) => {
-                                    const parsedValue = parseInt(event.target.value);
+                                    const parsedValue = parseInt(
+                                        event.target.value
+                                    );
                                     setMaterialFormValues({
                                         ...materialFormValues,
-                                        quantity_needed_per_unit: Number.isNaN(parsedValue) || parsedValue < 0
-                                        ? 0
-                                        : parsedValue,
-                                });
-                            }}
-                            value={
-                                materialFormValues.quantity_needed_per_unit === 0
-                                    ? ""
-                                    : materialFormValues.quantity_needed_per_unit
-                            }
-                        />
+                                        quantity_needed_per_unit:
+                                            Number.isNaN(parsedValue) ||
+                                            parsedValue < 0
+                                                ? 0
+                                                : parsedValue,
+                                    });
+                                }}
+                                value={
+                                    materialFormValues.quantity_needed_per_unit ===
+                                    0
+                                        ? ""
+                                        : materialFormValues.quantity_needed_per_unit
+                                }
+                            />
                             <Input
                                 id="co2-per-unit"
                                 placeholder="Product's API. E.g: https://example.api.com/products/1"
