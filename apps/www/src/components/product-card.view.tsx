@@ -90,7 +90,7 @@ export default function ProductCard(props: ProductCardProps) {
                         <SheetTrigger asChild>
                             <Button>More info</Button>
                         </SheetTrigger>
-                        <SheetContent className="w-[80vw] sm:w-[80vw] sm:max-w-[80vw]">
+                        <SheetContent className="w-[60vw] sm:w-[60vw] sm:max-w-[60vw]">
                             <SheetHeader>
                                 <SheetTitle>
                                     Product name: {props.title}
@@ -101,58 +101,69 @@ export default function ProductCard(props: ProductCardProps) {
                                 className="pb-4"
                             >
                                 <ScrollArea className="h-full">
-                                    {imageUrl === "" || imageUrl === "null" ? (
-                                        <Skeleton className="h-[300px] w-full rounded-xl my-8" />
-                                    ) : (
-                                        <img
-                                            alt="product-image"
-                                            src={imageUrl}
-                                            className="h-[300px] w-full rounded-xl my-8 object-contain"
-                                        />
-                                    )}
-                                    <div className="flex items-center gap-4">
-                                        <p>
-                                            <span className="font-semibold">
-                                                Product API URL:
-                                            </span>{" "}
-                                            <a
-                                                href={getProductUrl(props.id)}
-                                                className={
-                                                    "text-blue-400 underline"
-                                                }
-                                            >
-                                                {getProductUrl(props.id)}
-                                            </a>
-                                        </p>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className={
-                                                isCopyButtonClicked
-                                                    ? "bg-green-500 text-white hover:bg-green-700 hover:text-white"
-                                                    : ""
-                                            }
-                                            onClick={handleCopyUrlButtonClick}
-                                        >
-                                            {isCopyButtonClicked ? (
-                                                <CheckIcon />
-                                            ) : (
-                                                <CopyIcon />
-                                            )}
-                                        </Button>
+                                    <div className="flex gap-6">
+                                        {imageUrl === "" ||
+                                        imageUrl === "null" ? (
+                                            <Skeleton className="h-[250px] w-[250px] rounded-xl mt-4 mb-8" />
+                                        ) : (
+                                            <img
+                                                alt="product-image"
+                                                src={imageUrl}
+                                                className="h-[300px] w-[250px] rounded-xl mt-4 mb-8 object-contain"
+                                            />
+                                        )}
+                                        <div className="mt-4 flex flex-col flex-grow flex-wrap gap-1">
+                                            <div className="flex items-center gap-4">
+                                                <p>
+                                                    <span className="font-semibold">
+                                                        Product API URL:
+                                                    </span>{" "}
+                                                    <a
+                                                        href={getProductUrl(
+                                                            props.id
+                                                        )}
+                                                        className={
+                                                            "text-blue-400 underline"
+                                                        }
+                                                    >
+                                                        {getProductUrl(
+                                                            props.id
+                                                        )}
+                                                    </a>
+                                                </p>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className={
+                                                        isCopyButtonClicked
+                                                            ? "bg-green-500 text-white hover:bg-green-700 hover:text-white"
+                                                            : ""
+                                                    }
+                                                    onClick={
+                                                        handleCopyUrlButtonClick
+                                                    }
+                                                >
+                                                    {isCopyButtonClicked ? (
+                                                        <CheckIcon />
+                                                    ) : (
+                                                        <CopyIcon />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            <p className="mb-2">
+                                                <span className="font-semibold">
+                                                    Number of Units:{" "}
+                                                </span>{" "}
+                                                <a>{props.numberOfUnits}</a>
+                                            </p>
+                                            <p className="mb-2">
+                                                <span className="font-semibold">
+                                                    CO2 per Unit:
+                                                </span>{" "}
+                                                {props.co2PerUnit}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <p className="mb-2">
-                                        <span className="font-semibold">
-                                            Number of Units:{" "}
-                                        </span>{" "}
-                                        <a>{props.numberOfUnits}</a>
-                                    </p>
-                                    <p className="mb-2">
-                                        <span className="font-semibold">
-                                            CO2 per Unit:
-                                        </span>{" "}
-                                        {props.co2PerUnit}
-                                    </p>
                                     <p className="mb-2">
                                         <span className="font-semibold">
                                             Materials used:

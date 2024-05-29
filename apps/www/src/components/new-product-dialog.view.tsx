@@ -66,7 +66,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                             ? { name: "test inc" }
                             : {
                                   name: productInfo.manufacturer.name,
-                                  mainURL: urlHandler(origin),
+                                  mainURL: origin,
                               },
                     co2_footprint: productInfo.co2_footprint,
                     number_of_units: productInfo.number_of_units,
