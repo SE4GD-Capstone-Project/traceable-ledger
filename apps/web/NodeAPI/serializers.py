@@ -1,32 +1,6 @@
 from rest_framework import serializers
 from .models import Product, Subpart, ProductSubpart,SubManufacturer, SustainabilityMetrics
-
-# # Serializer for Subpart
-# class SubpartSerializer(serializers.ModelSerializer):
-#     manufacturer_name = serializers.CharField(source='manufacturer.name', read_only=True)  # Assuming you might want the manufacturer's name
-
-#     class Meta:
-#         model = Subpart
-#         fields = ['id', 'name', 'co2_footprint', 'manufacturer_name']
-
-# # Serializer for ProductSubpart which uses SubpartSerializer
-# class ProductSubpartSerializer(serializers.ModelSerializer):
-#     subpart = SubpartSerializer(read_only=True)
-#     quantity_needed_per_unit = serializers.FloatField()
-#     units_to_buy = serializers.FloatField()
-
-#     class Meta:
-#         model = ProductSubpart
-#         fields = ['subpart', 'quantity_needed_per_unit', 'units_to_buy']
-
-# # Updated ProductSerializer to include subparts
-# class ProductSerializer(serializers.ModelSerializer):
-#     subparts = ProductSubpartSerializer(source='product_subparts', many=True, read_only=True)
-
-#     class Meta:
-#         model = Product
-#         fields = ['id', 'name', 'number_of_units', 'co2_per_unit', 'subparts']
-
+from django.db import transaction
 
 class SubManufacturerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,63 +34,94 @@ class SubpartSerializer(serializers.ModelSerializer):
 
         return subpart
 
-
 class ProductSerializer(serializers.ModelSerializer):
     subparts = SubpartSerializer(many=True)
+    sustainability_metrics = SustainabilityMetricsSerializer(many=True)
     manufacturer = SubManufacturerSerializer()
     class Meta:
         model = Product
         fields = '__all__'
     
+    # all operations within the block are treated as a single atomic unit. 
+    # If any operation within the block fails, the entire transaction will be rolled back, 
+    # and none of the operations will be committed to the database.
+    @transaction.atomic
     def create(self, validated_data):
-        subparts_data = validated_data.pop('subparts')
+        subparts_data = validated_data.pop('subparts', [])
         manufacturer_data = validated_data.pop("manufacturer")
         manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
-
-        product = Product.objects.create(manufacturer=manufacturer,**validated_data)
-
+        sustainability_metrics_data = validated_data.pop('sustainability_metrics', [])
+        
+        product = Product.objects.create(manufacturer=manufacturer, **validated_data)
+        
+        for sm_data in sustainability_metrics_data:
+            sm, created = SustainabilityMetrics.objects.get_or_create(**sm_data)
+            product.sustainability_metrics.add(sm)
+                
         for subpart_data in subparts_data:
-            manufacturer_data = subpart_data.pop('manufacturer')
-            manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
-            subpart, created = Subpart.objects.get_or_create(manufacturer=manufacturer, **subpart_data)
+            subpart_manufacturer_data = subpart_data.pop('manufacturer')
+            subpart_manufacturer, created = SubManufacturer.objects.get_or_create(**subpart_manufacturer_data)
+            subpart_sustainability_metrics_data = subpart_data.pop('sustainability_metrics', [])
+            subpart = Subpart.objects.create(manufacturer=subpart_manufacturer, **subpart_data)
+            
+            for sm_data in subpart_sustainability_metrics_data:
+                sm, created = SustainabilityMetrics.objects.get_or_create(**sm_data)
+                subpart.sustainability_metrics.add(sm)
+                
             product.subparts.add(subpart)
 
-
-            # Create TransactionLog for each subpart
+            # Assuming TransactionLog creation logic is correct
+            
             TransactionLog.objects.create(
-                buyer_id=str(product.manufacturer),  # Assuming this is a fixed value or could be dynamic based on other logic
+                buyer_id=str(product.manufacturer),
                 seller_id=str(subpart.manufacturer),
-                product_id=str(product.id),
-                subpart_id=str(subpart.id),
+                product_id=str(product.product_id),
+                subpart_id=str(subpart.subpart_id),
                 amount=subpart.units_bought,
-                sustainability_data = str(subpart.get_sustainablity_data())
+                sustainability_data_subpart= subpart.get_sustainablity_data(),
+                sustainability_data_product=product.get_sustainablity_data()
             )
         
         return product
     
+    @transaction.atomic
     def update(self, instance, validated_data):
         subparts_data = validated_data.pop('subparts', None)
+        sustainability_metrics_data = validated_data.pop('sustainability_metrics', None)
 
         # Update the product fields if provided
         instance.name = validated_data.get('name', instance.name)
         instance.number_of_units = validated_data.get('number_of_units', instance.number_of_units)
-        instance.co2_footprint = validated_data.get('co2_footprint', instance.co2_footprint)
         instance.save()
+        
+        # Update sustainability metrics
+        if sustainability_metrics_data:
+            for sm_data in sustainability_metrics_data:
+                sm, created = SustainabilityMetrics.objects.get_or_create(**sm_data)
+                instance.sustainability_metrics.add(sm)
 
         if subparts_data:
             for subpart_data in subparts_data:
-                manufacturer_data = subpart_data.pop('manufacturer')
-                manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
-                subpart, created = Subpart.objects.get_or_create(manufacturer=manufacturer, **subpart_data)
-                instance.subparts.add(subpart)
+                subpart_manufacturer_data = subpart_data.pop('manufacturer')
+                subpart_manufacturer, created = SubManufacturer.objects.get_or_create(**subpart_manufacturer_data)
+                subpart_sustainability_metrics_data = subpart_data.pop('sustainability_metrics', [])
+                subpart = Subpart.objects.create(manufacturer=subpart_manufacturer, **subpart_data)
                 
-                # Create TransactionLog for each subpart
+                for sm_data in subpart_sustainability_metrics_data:
+                    sm, created = SustainabilityMetrics.objects.get_or_create(**sm_data)
+                    subpart.sustainability_metrics.add(sm)
+                    
+                instance.subparts.add(subpart)
+
+                # Assuming TransactionLog creation logic is correct
                 TransactionLog.objects.create(
-                    buyer_id=instance.manufacturer,  # Assuming this is a fixed value or could be dynamic based on other logic
+                    buyer_id=str(instance.manufacturer),
                     seller_id=str(subpart.manufacturer),
-                    product_id=str(instance.id),
-                    subpart_id=str(subpart.id),
-                    amount=subpart.units_bought
+                    product_id=str(instance.product_id),
+                    subpart_id=str(subpart.subpart_id),
+                    amount=subpart.units_bought,
+                    sustainability_data_subpart= subpart.get_sustainablity_data(),
+                    sustainability_data_product=instance.get_sustainablity_data()
                 )
 
         return instance
