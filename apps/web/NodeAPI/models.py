@@ -11,9 +11,18 @@ class SubManufacturer(models.Model):
     def __str__(self): 
         return self.name 
 
+class SustainabilityMetrics(models.Model):
+    name = models.CharField(max_length=255, blank=True)
+    unit = models.CharField(max_length=100, blank=True)
+    description = models.TextField()
+    
+    def __str__(self): 
+        return self.name 
+
+
 class Subpart(models.Model): 
     name = models.CharField(max_length=100) 
-    co2_footprint = models.FloatField(help_text="CO2 footprint per unit") 
+    sustainability_metrics = models.ManyToManyField(SustainabilityMetrics, related_name='subparts')
     quantity_needed_per_unit = models.FloatField(help_text="Quantity of the subpart needed to make one unit of product") 
     units_bought = models.FloatField(help_text="Number of units to buy from the submanufacturer") 
     manufacturer = models.ForeignKey(SubManufacturer, on_delete=models.CASCADE, blank=True, null=True)
@@ -76,8 +85,8 @@ class ProductSubpart(models.Model):
     def __str__(self): 
         return f"{self.subpart.name} for {self.product.name}" 
  
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
 
 # @receiver(post_save, sender=Product)
 # def create_transaction_log(sender, instance, created, **kwargs):

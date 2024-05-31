@@ -1,8 +1,8 @@
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from rest_framework import viewsets
-from .models import Product,Subpart,ProductSubpart,SubManufacturer
-from .serializers import ProductSerializer,ProductSubpartSerializer,SubpartSerializer,SubManufacturerSerializer
+from .models import Product,Subpart,ProductSubpart,SubManufacturer, SustainabilityMetrics
+from .serializers import ProductSerializer,ProductSubpartSerializer,SubpartSerializer,SubManufacturerSerializer, SustainabilityMetricsSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -79,6 +79,20 @@ class ProductSubpartViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return super(ProductSubpartViewSet, self).create(request, *args, **kwargs)
+
+class SustainabilityMetricsViewSet(viewsets.ModelViewSet):
+    queryset = SustainabilityMetrics.objects.all()
+    serializer_class = SustainabilityMetricsSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return super(SustainabilityMetricsViewSet, self).create(request, *args, **kwargs)
 
 class SubManufacturerViewSet(viewsets.ModelViewSet):
     queryset = SubManufacturer.objects.all()

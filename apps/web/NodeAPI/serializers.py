@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Subpart, ProductSubpart,SubManufacturer
+from .models import Product, Subpart, ProductSubpart,SubManufacturer, SustainabilityMetrics
 
 # # Serializer for Subpart
 # class SubpartSerializer(serializers.ModelSerializer):
@@ -34,16 +34,30 @@ class SubManufacturerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SustainabilityMetricsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SustainabilityMetrics
+        fields = '__all__'
+
 class SubpartSerializer(serializers.ModelSerializer):
     manufacturer = SubManufacturerSerializer()
+    sustainability_metrics = SustainabilityMetricsSerializer(many=True)
+
     class Meta:
         model = Subpart
         fields = '__all__'
-    
+
     def create(self, validated_data):
         manufacturer_data = validated_data.pop('manufacturer')
         manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
+        
+        sustainability_metrics_data = validated_data.pop('sustainability_metrics')
         subpart = Subpart.objects.create(manufacturer=manufacturer, **validated_data)
+        
+        for sm_data in sustainability_metrics_data:
+            sm, created = SustainabilityMetrics.objects.get_or_create(**sm_data)
+            subpart.sustainability_metrics.add(sm)
+
         return subpart
 
 
