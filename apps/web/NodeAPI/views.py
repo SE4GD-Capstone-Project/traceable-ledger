@@ -112,11 +112,19 @@ class SubManufacturerViewSet(viewsets.ModelViewSet):
 from .serializers import TransactionLogSerializer
 from .models import TransactionLog
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 class TransactionLogViewSet(viewsets.ModelViewSet):
     queryset = TransactionLog.objects.all()
     serializer_class = TransactionLogSerializer
 
-
+    def get_queryset(self):
+        queryset = super().get_queryset()  # Get the initial queryset
+        product_id = self.request.query_params.get('product_id')
+        if product_id:
+            queryset = queryset.filter(product_id=product_id)
+        return queryset
 
 # from django.shortcuts import render, redirect
 # from django.http import JsonResponse
