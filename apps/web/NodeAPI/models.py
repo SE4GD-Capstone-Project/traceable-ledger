@@ -2,13 +2,13 @@ from django.db import models
 from django.db.models.signals import post_save 
 from django.dispatch import receiver 
 import json
-
+from django.utils.text import slugify
  
 class SubManufacturer(models.Model):
     sub_manufacturer_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, blank=True)
     mainURL = models.CharField(max_length=100, blank=True)
-# Include other fields as necessary for submanufacturers
+   
  
     def __str__(self): 
         return self.name 
@@ -28,7 +28,8 @@ class SustainabilityMetrics(models.Model):
             }
             # Convert the dictionary to a JSON string
             return json.dumps(data)
-
+import random,string
+from django.utils.text import slugify
 
 class Subpart(models.Model): 
     subpart_id = models.AutoField(primary_key=True)
@@ -36,6 +37,14 @@ class Subpart(models.Model):
     sustainability_metrics = models.ManyToManyField(SustainabilityMetrics, related_name='subparts')
     units_bought = models.FloatField(help_text="Number of units to buy from the submanufacturer") 
     manufacturer = models.ForeignKey(SubManufacturer, on_delete=models.CASCADE, blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
+            self.slug = slugify(f"{self.name}-{random_string}")
+        super(Subpart, self).save(*args, **kwargs)
+
     # You might include other fields relevant to subparts, such as a unit price, etc. 
  
     def __str__(self): 
@@ -52,6 +61,12 @@ class Product(models.Model):
     sustainability_metrics = models.ManyToManyField(SustainabilityMetrics, related_name='products_sustainability')
     subparts = models.ManyToManyField(Subpart, related_name='products')
     manufacturer = models.ForeignKey(SubManufacturer, on_delete=models.CASCADE, blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Product, self).save(*args, **kwargs)
      
      
     def __str__(self): 

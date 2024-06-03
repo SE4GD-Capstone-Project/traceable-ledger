@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Product, Subpart, ProductSubpart,SubManufacturer, SustainabilityMetrics
 from django.db import transaction
+import random , string
+from django.utils.text import slugify
 
 class SubManufacturerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,6 +27,10 @@ class SubpartSerializer(serializers.ModelSerializer):
         manufacturer_data = validated_data.pop('manufacturer')
         manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
         
+        # Generate a random string of fixed length
+        random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
+        validated_data['slug'] = slugify(f"{validated_data['name']}-{random_string}")
+
         sustainability_metrics_data = validated_data.pop('sustainability_metrics')
         subpart = Subpart.objects.create(manufacturer=manufacturer, **validated_data)
         
@@ -52,6 +58,12 @@ class ProductSerializer(serializers.ModelSerializer):
         manufacturer, created = SubManufacturer.objects.get_or_create(**manufacturer_data)
         sustainability_metrics_data = validated_data.pop('sustainability_metrics', [])
         
+        # Generate a random string of fixed length
+        random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
+        validated_data['slug'] = slugify(f"{validated_data['name']}-{random_string}")
+
+
+
         product = Product.objects.create(manufacturer=manufacturer, **validated_data)
         
         for sm_data in sustainability_metrics_data:
