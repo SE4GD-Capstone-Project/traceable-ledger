@@ -1,4 +1,5 @@
 import React from "react";
+import { MetricType } from "@/components/types/metric.api";
 
 export interface ManufacturerType {
     name: string;
@@ -6,12 +7,25 @@ export interface ManufacturerType {
     id?: number;
 }
 
+export interface ProductSustainabilityMetricInputType {
+    metric_id?: string;
+    value: number;
+}
+export interface ProductSustainabilityMetricType {
+    name: string;
+    description: string;
+    unit: string;
+    value: number;
+}
+
 export interface ProductType {
     id: string;
+    slug: string;
     name: string;
     manufacturer: ManufacturerType;
     number_of_units: number;
-    co2_footprint: number;
+    sustainability_metrics_input?: ProductSustainabilityMetricInputType[];
+    sustainability_metrics?: ProductSustainabilityMetricType[];
     subparts?: SubpartType[];
 }
 
@@ -27,11 +41,20 @@ export interface MaterialFormValueType {
 }
 
 export interface ProductCardProps {
-    id: number;
+    id: string;
     title: React.ReactNode;
     description?: React.ReactNode;
     image?: React.ReactNode;
     numberOfUnits?: number;
-    co2PerUnit?: number;
+    sustainability_metrics?: ProductSustainabilityMetricType[];
+    companyMetrics?: MetricType[];
     subparts?: SubpartType[];
+}
+
+export interface MaterialCardProps extends SubpartType {
+    companyMetrics?: MetricType[];
+    onCardDelete?: (itemId: string) => void;
+    first?: boolean;
+    last?: boolean;
+    two?: boolean;
 }

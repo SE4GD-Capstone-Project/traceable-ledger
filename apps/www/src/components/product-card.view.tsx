@@ -19,16 +19,14 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "./ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Pencil2Icon, CheckIcon, CopyIcon } from "@radix-ui/react-icons";
 import { getProductUrl, imagesUrlHandler } from "@/utils/utils";
 import { ProductCardProps } from "./types/product.api";
-import {
-    MaterialDataTable,
-    materialDataTableColumns,
-} from "./material-data-table.view";
+import MaterialCard from "@/components/material-card.view";
+import { PreferenceContext } from "@/components/preference-context.view";
 
 export default function ProductCard(props: ProductCardProps) {
+    const { theme } = React.useContext(PreferenceContext);
     const [isCopyButtonClicked, setIsCopyButtonClicked] = React.useState(false);
     const [imageUrl, setImageUrl] = React.useState("");
     const handleCopyUrlButtonClick = React.useCallback(() => {
@@ -90,17 +88,19 @@ export default function ProductCard(props: ProductCardProps) {
                         <SheetTrigger asChild>
                             <Button>More info</Button>
                         </SheetTrigger>
-                        <SheetContent className="w-[60vw] sm:w-[60vw] sm:max-w-[60vw]">
+                        <SheetContent
+                            className={`theme-${theme} w-[80vw] sm:w-[80vw] sm:max-w-[80vw]`}
+                        >
                             <SheetHeader>
                                 <SheetTitle>
                                     Product name: {props.title}
                                 </SheetTitle>
                             </SheetHeader>
                             <div
-                                style={{ height: "calc(100% - 68px)" }}
-                                className="pb-4"
+                                style={{ height: "calc(100vh - 120px)" }}
+                                className="overflow-auto my-2"
                             >
-                                <ScrollArea className="h-full">
+                                <div>
                                     <div className="flex gap-6">
                                         {imageUrl === "" ||
                                         imageUrl === "null" ? (
@@ -156,26 +156,63 @@ export default function ProductCard(props: ProductCardProps) {
                                                 </span>{" "}
                                                 <a>{props.numberOfUnits}</a>
                                             </p>
-                                            <p className="mb-2">
-                                                <span className="font-semibold">
-                                                    CO2 per Unit:
-                                                </span>{" "}
-                                                {props.co2PerUnit}
-                                            </p>
+                                            {props.sustainability_metrics?.map(
+                                                (metric, index) => {
+                                                    return (
+                                                        <p
+                                                            className="mb-2"
+                                                            key={index}
+                                                        >
+                                                            <span className="font-semibold">
+                                                                {metric.name}{" "}
+                                                                per Unit (
+                                                                {metric.unit}
+                                                                ):
+                                                            </span>{" "}
+                                                            <a>
+                                                                {metric.value}
+                                                            </a>
+                                                        </p>
+                                                    );
+                                                }
+                                            )}
                                         </div>
                                     </div>
-                                    <p className="mb-2">
+                                    <p className="mb-2 flex">
                                         <span className="font-semibold">
                                             Materials used:
                                         </span>
                                     </p>
-                                    <MaterialDataTable
-                                        columns={materialDataTableColumns()}
-                                        data={props.subparts ?? []}
-                                    />
-                                </ScrollArea>
+                                    <div className="relative">
+                                        <div className="flex absolute w-full overflow-x-auto">
+                                            {props.subparts &&
+                                                props.subparts.map(
+                                                    (material, index) => (
+                                                        <MaterialCard
+                                                            key={index}
+                                                            {...material}
+                                                            first={index === 0}
+                                                            last={
+                                                                props.subparts &&
+                                                                index ===
+                                                                    props
+                                                                        .subparts
+                                                                        .length -
+                                                                        1
+                                                            }
+                                                            two={
+                                                                props.subparts
+                                                                    ?.length ===
+                                                                2
+                                                            }
+                                                        />
+                                                    )
+                                                )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <SheetFooter>
+                            <SheetFooter className="mt-2">
                                 <Button className="bg-blue-500">
                                     {" "}
                                     <Pencil2Icon className="mr-2 h-4 w-4" />{" "}

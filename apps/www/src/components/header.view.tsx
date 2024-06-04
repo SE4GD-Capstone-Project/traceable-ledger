@@ -37,6 +37,15 @@ export default function Header() {
                         </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
+                        <Link href="/metrics" legacyBehavior passHref>
+                            <NavigationMenuLink
+                                className={navigationMenuTriggerStyle()}
+                            >
+                                Sustainability metrics
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
                         <Link href="/preferences" legacyBehavior passHref>
                             <NavigationMenuLink
                                 className={navigationMenuTriggerStyle()}

@@ -19,30 +19,30 @@ import { urlHandler } from "@/utils/utils";
 import { PreferenceContext } from "@/components/preference-context.view";
 import {
     MaterialFormValueType,
+    ProductSustainabilityMetricInputType,
     ProductType,
     SubpartType,
 } from "@/components/types/product.api";
-import {
-    MaterialDataTable,
-    materialDataTableColumns,
-} from "@/components/material-data-table.view";
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { MetricType } from "@/components/types/metric.api";
+import MaterialCard from "@/components/material-card.view";
 
 export default function NewProductDialog(props: { onCreateProduct(): void }) {
     const { theme, companyName } = React.useContext(PreferenceContext);
     const [productInfo, setProductInfo] = React.useState<ProductType>({
         id: "",
+        slug: "",
         name: "",
         manufacturer: {
             name: companyName,
             mainURL: "",
         },
-        co2_footprint: 0,
+        sustainability_metrics_input: [],
         number_of_units: 0,
     });
     const [showDialog, setShowDialog] = React.useState(false);
@@ -52,6 +52,14 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
             productURL: "",
             quantity_needed_per_unit: 0,
         });
+    const [metricList, setMetricList] = React.useState<MetricType[]>([
+        {
+            metric_id: "1",
+            name: "CO2",
+            unit: "tons",
+            description: "GHG Emission",
+        },
+    ]);
 
     const handleCreateButtonClick = React.useCallback(() => {
         if (typeof window !== "undefined") {
@@ -68,13 +76,15 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                   name: productInfo.manufacturer.name,
                                   mainURL: origin,
                               },
-                    co2_footprint: productInfo.co2_footprint,
+                    sustainability_metrics_input:
+                        productInfo.sustainability_metrics_input,
                     number_of_units: productInfo.number_of_units,
                     subparts: materialList
                         ? materialList.map((material) => {
                               return {
                                   name: material.name,
-                                  co2_footprint: material.co2_footprint,
+                                  sustainability_metrics_input:
+                                      material.sustainability_metrics_input,
                                   quantity_needed_per_unit:
                                       material.quantity_needed_per_unit,
                                   units_bought: material.units_bought,
@@ -82,6 +92,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                       name: material.manufacturer.name,
                                       mainURL: material.manufacturer.mainURL,
                                   },
+                                  slug: material.slug,
                               };
                           })
                         : [],
@@ -130,11 +141,34 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                 .then((data: ProductType) => {
                     if (data) {
                         delete data.manufacturer.id;
+                        let supartMetricInputs: ProductSustainabilityMetricInputType[] =
+                            [];
+                        if (data.sustainability_metrics) {
+                            supartMetricInputs = data.sustainability_metrics
+                                .filter((supartMetric) => {
+                                    return !!metricList.find(
+                                        (metric) =>
+                                            metric.name === supartMetric.name
+                                    );
+                                })
+                                .map((supartMetric) => {
+                                    return {
+                                        metric_id: metricList.find(
+                                            (metric) =>
+                                                metric.name ===
+                                                supartMetric.name
+                                        )?.metric_id,
+                                        value: supartMetric.value,
+                                    };
+                                });
+                        }
                         if (materialList) {
                             setMaterialList([
                                 ...materialList,
                                 {
                                     ...data,
+                                    sustainability_metrics_input:
+                                        supartMetricInputs,
                                     quantity_needed_per_unit:
                                         materialFormValues.quantity_needed_per_unit,
                                     units_bought:
@@ -147,6 +181,8 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                             setMaterialList([
                                 {
                                     ...data,
+                                    sustainability_metrics_input:
+                                        supartMetricInputs,
                                     quantity_needed_per_unit:
                                         materialFormValues.quantity_needed_per_unit,
                                     units_bought:
@@ -165,9 +201,9 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                     })
                 );
         }
-    }, [materialList, productInfo, materialFormValues]);
+    }, [materialList, productInfo, materialFormValues, metricList]);
 
-    const handleOnRowActionDelete = React.useCallback(
+    const handleMaterialDelete = React.useCallback(
         (id: string) => {
             if (confirm("Do you want to remove this material?")) {
                 const index = materialList.findIndex((item) => item.id === id);
@@ -179,6 +215,19 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
         [materialList, setMaterialList]
     );
 
+    React.useEffect(() => {
+        if (typeof window !== "undefined") {
+            const origin = window.location.origin;
+            fetch(`${urlHandler(origin)}/api/sustainability-metrics/`)
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data) {
+                        setMetricList(data);
+                    }
+                });
+        }
+    }, [setMetricList]);
+
     return (
         <>
             <Dialog
@@ -188,9 +237,10 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                     setMaterialList([]);
                     setProductInfo({
                         id: "",
+                        slug: "",
                         name: "",
                         manufacturer: { name: companyName, mainURL: "" },
-                        co2_footprint: 0,
+                        sustainability_metrics_input: [],
                         number_of_units: 0,
                     });
                     setMaterialFormValues({
@@ -220,14 +270,14 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                             </p>
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
+                    <div className="grid gap-4 py-4 max-h-[75vh] overflow-auto">
                         <div className="grid grid-cols-12 items-center gap-4">
                             <Label htmlFor="name" className="col-span-2">
                                 Name <span className={"text-red-500"}>*</span>
                             </Label>
                             <Input
                                 id="name"
-                                className="col-span-10"
+                                className="col-span-9"
                                 placeholder="Example: Steel"
                                 onChange={(event) => {
                                     setProductInfo({
@@ -249,7 +299,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                             <Input
                                 id="number-of-units"
                                 placeholder="Example: 20"
-                                className="col-span-10"
+                                className="col-span-9"
                                 type="number"
                                 onChange={(event) => {
                                     setProductInfo({
@@ -264,41 +314,96 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 required
                             />
                         </div>
-                        <div className="grid grid-cols-12 items-center gap-4">
+                        <div className="grid grid-cols-12 items-center gap-4 mt-4">
                             <Label
                                 htmlFor="co2-per-unit"
-                                className="col-span-2"
+                                className="col-span-2 border-2 p-2 border-dashed border-primary/30 rounded-md"
                             >
-                                Amount of CO2 per unit{" "}
-                                <span className={"text-red-500"}>*</span>
+                                Sustainability metrics per unit{" "}
                             </Label>
-                            <Input
-                                id="co2-per-unit"
-                                placeholder="Example: 20"
-                                className="col-span-10"
-                                type="number"
-                                onChange={(event) => {
-                                    setProductInfo({
-                                        ...productInfo,
-                                        co2_footprint: Number.isNaN(
-                                            parseInt(event.target.value)
-                                        )
-                                            ? 0
-                                            : parseInt(event.target.value),
-                                    });
-                                }}
-                                required
-                            />
+                            <a className="col-span-10 bg-primary/20 w-full h-[2px]">
+                                {" "}
+                            </a>
                         </div>
-                        <div>
-                            <Label
-                                htmlFor="co2-per-unit col-span-4"
-                                className=""
-                            >
+                        {metricList.length > 0 &&
+                            metricList.map((metric, index) => {
+                                return (
+                                    <div
+                                        className="grid grid-cols-12 items-center gap-4"
+                                        key={index}
+                                    >
+                                        <Label
+                                            htmlFor={`${metric.name}-per-unit`}
+                                            className="col-span-2"
+                                        >
+                                            {metric.name} {`(${metric.unit})`}{" "}
+                                        </Label>
+                                        <Input
+                                            id={`${metric.name}-per-unit`}
+                                            placeholder="Example: 20"
+                                            className="col-span-9"
+                                            type="number"
+                                            onChange={(event) => {
+                                                let metrics =
+                                                    productInfo.sustainability_metrics_input;
+                                                const metricIndex =
+                                                    metrics?.findIndex(
+                                                        (metricInList) =>
+                                                            metricInList.metric_id ===
+                                                            metric.metric_id
+                                                    );
+                                                if (
+                                                    metrics &&
+                                                    metricIndex !== undefined &&
+                                                    metricIndex > -1
+                                                ) {
+                                                    metrics[metricIndex].value =
+                                                        parseInt(
+                                                            event.target.value
+                                                        );
+                                                } else if (metric.metric_id) {
+                                                    if (metrics) {
+                                                        metrics.push({
+                                                            metric_id:
+                                                                metric.metric_id,
+                                                            value: parseInt(
+                                                                event.target
+                                                                    .value
+                                                            ),
+                                                        });
+                                                    } else {
+                                                        metrics = [
+                                                            {
+                                                                metric_id:
+                                                                    metric.metric_id,
+                                                                value: parseInt(
+                                                                    event.target
+                                                                        .value
+                                                                ),
+                                                            },
+                                                        ];
+                                                    }
+                                                }
+                                                setProductInfo({
+                                                    ...productInfo,
+                                                    sustainability_metrics_input:
+                                                        metrics,
+                                                });
+                                            }}
+                                            required
+                                        />
+                                    </div>
+                                );
+                            })}
+                        <div className="grid grid-cols-12 items-center gap-4 mt-2">
+                            <Label className="co2-per-unit col-span-2 border-2 p-2 border-dashed border-primary/30 rounded-md">
                                 Materials used
                             </Label>
+                            <a className="col-span-10 bg-primary/20 w-full h-[2px]">
+                                {" "}
+                            </a>
                         </div>
-                        <div className="grid grid-cols-10 items-center gap-4">
+                        <div className="grid grid-cols-10 items-center gap-4 ml-1">
                             <Input
                                 id="units-per-product"
                                 placeholder="Units used per product. E.g: 20"
@@ -367,17 +472,29 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 </TooltipProvider>
                             )}
                         </div>
-                        <MaterialDataTable
-                            columns={materialDataTableColumns(
-                                handleOnRowActionDelete
-                            )}
-                            data={materialList}
-                        />
+                        {materialList.length === 0 && (
+                            <div className="w-full border-4 border-primary/30 border-dashed p-4 text-center text-primary/50 rounded-xl">
+                                No material.
+                            </div>
+                        )}
+                        <div className="relative h-[380px]">
+                            <div className="flex absolute w-full overflow-x-auto">
+                                {materialList.map((material, index) => (
+                                    <MaterialCard
+                                        {...material}
+                                        key={index}
+                                        onCardDelete={handleMaterialDelete}
+                                        first={index === 0}
+                                        last={index === materialList.length - 1}
+                                        two={materialList.length === 2}
+                                    />
+                                ))}
+                            </div>
+                        </div>
                     </div>
                     <DialogFooter>
                         {productInfo.name !== "" &&
-                        productInfo.number_of_units !== 0 &&
-                        productInfo.co2_footprint !== 0 ? (
+                        productInfo.number_of_units !== 0 ? (
                             <Button
                                 type="submit"
                                 onClick={handleCreateButtonClick}
