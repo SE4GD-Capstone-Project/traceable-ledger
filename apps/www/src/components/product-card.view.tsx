@@ -183,10 +183,11 @@ export default function ProductCard(props: ProductCardProps) {
                                             Materials used:
                                         </span>
                                     </p>
-                                    <div className="relative">
-                                        <div className="flex absolute w-full overflow-x-auto">
-                                            {props.subparts &&
-                                                props.subparts.map(
+                                    {props.subparts &&
+                                    props.subparts.length > 0 ? (
+                                        <div className="relative">
+                                            <div className="flex absolute w-full overflow-x-auto">
+                                                {props.subparts.map(
                                                     (material, index) => (
                                                         <MaterialCard
                                                             key={index}
@@ -208,8 +209,13 @@ export default function ProductCard(props: ProductCardProps) {
                                                         />
                                                     )
                                                 )}
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="w-full border-4 border-primary/30 border-dashed p-4 text-center text-primary/50 rounded-xl">
+                                            No material.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <SheetFooter className="mt-2">

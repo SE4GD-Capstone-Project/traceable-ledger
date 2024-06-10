@@ -130,31 +130,33 @@ export default function Page({ params }: { params: { productId: string } }) {
                                     </span>
                                 ))}
                         </p>
-                        <div className="relative h-[380px]">
-                            <div className="flex absolute w-full overflow-x-auto">
-                                {productInfo.subparts &&
-                                    productInfo.subparts.map(
-                                        (material, index) => (
-                                            <MaterialCard
-                                                key={index}
-                                                {...material}
-                                                first={index === 0}
-                                                last={
-                                                    productInfo.subparts &&
-                                                    index ===
+                        {productInfo.subparts &&
+                            productInfo.subparts.length > 0 && (
+                                <div className="relative h-[380px]">
+                                    <div className="flex absolute w-full overflow-x-auto">
+                                        {productInfo.subparts.map(
+                                            (material, index) => (
+                                                <MaterialCard
+                                                    key={index}
+                                                    {...material}
+                                                    first={index === 0}
+                                                    last={
+                                                        productInfo.subparts &&
+                                                        index ===
+                                                            productInfo.subparts
+                                                                .length -
+                                                                1
+                                                    }
+                                                    two={
                                                         productInfo.subparts
-                                                            .length -
-                                                            1
-                                                }
-                                                two={
-                                                    productInfo.subparts
-                                                        ?.length === 2
-                                                }
-                                            />
-                                        )
-                                    )}
-                            </div>
-                        </div>
+                                                            ?.length === 2
+                                                    }
+                                                />
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                     </div>
                 </CardContent>
             </Card>
