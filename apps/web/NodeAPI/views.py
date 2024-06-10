@@ -3,8 +3,8 @@ import string
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from rest_framework import viewsets
-from .models import Product, Subpart, ProductSubpart, SubManufacturer, SustainabilityMetrics,TransactionLog
-from .serializers import ProductSerializer, SubpartSerializer, ProductSubpartSerializer, SubManufacturerSerializer, SustainabilityMetricsSerializer,TransactionLogSerializer
+from .models import Product,Subpart,ProductSubpart,SubManufacturer, SustainabilityMetric, ProductSustainabilityMetric, TransactionLog, SubpartSustainabilityMetric
+from .serializers import ProductSerializer,ProductSubpartSerializer,SubpartSerializer,SubManufacturerSerializer, SustainabilityMetricSerializer, ProductSustainabilityMetricSerializer, SubpartSustainabilityMetricSerializer, TransactionLogSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -26,30 +26,66 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     lookup_field = 'slug'
 
-    
+
 
 class SubPartViewSet(viewsets.ModelViewSet):
     queryset = Subpart.objects.all()
     serializer_class = SubpartSerializer
     lookup_field = 'slug'
 
-    
+
 class ProductSubpartViewSet(viewsets.ModelViewSet):
     queryset = ProductSubpart.objects.all()
     serializer_class = ProductSubpartSerializer
 
 
-class SustainabilityMetricsViewSet(viewsets.ModelViewSet):
-    queryset = SustainabilityMetrics.objects.all()
-    serializer_class = SustainabilityMetricsSerializer
-    
-    
+class SustainabilityMetricViewSet(viewsets.ModelViewSet):
+    queryset = SustainabilityMetric.objects.all()
+    serializer_class = SustainabilityMetricSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return super(SustainabilityMetricViewSet, self).create(request, *args, **kwargs)
+
+class ProductSustainabilityMetricViewSet(viewsets.ModelViewSet):
+    queryset = ProductSustainabilityMetric.objects.all()
+    serializer_class = ProductSustainabilityMetricSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return super(ProductSustainabilityMetricViewSet, self).create(request, *args, **kwargs)
+
+class SubpartSustainabilityMetricViewSet(viewsets.ModelViewSet):
+    queryset = SubpartSustainabilityMetric.objects.all()
+    serializer_class = SubpartSustainabilityMetricSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        if isinstance(data, list):
+            serializer = self.get_serializer(data=data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return super(SubpartSustainabilityMetricViewSet, self).create(request, *args, **kwargs)
 
 class SubManufacturerViewSet(viewsets.ModelViewSet):
     queryset = SubManufacturer.objects.all()
     serializer_class = SubManufacturerSerializer
-    
-    
+
+
 class TransactionLogViewSet(viewsets.ModelViewSet):
     queryset = TransactionLog.objects.all()
     serializer_class = TransactionLogSerializer

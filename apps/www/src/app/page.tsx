@@ -6,21 +6,54 @@ import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import NewProductDialog from "@/components/new-product-dialog.view";
 import { ProductType } from "@/components/types/product.api";
+import { MetricType } from "@/components/types/metric.api";
 
 export default function Products() {
     const [products, setProducts] = React.useState<ProductType[]>([
         {
             id: "1",
+            slug: "abc",
             subparts: [
                 {
-                    id: "1",
+                    id: "1ALWODJHQWOIDSALFKNDFlsdkfncv",
+                    slug: "abcdsd",
                     manufacturer: {
                         id: 2,
                         name: "Greenergy Oy",
                         mainURL: "http://0.0.0.0",
                     },
                     name: "Green Electricity",
-                    co2_footprint: 2,
+                    sustainability_metrics: [
+                        {
+                            name: "CO2",
+                            value: 20,
+                            description: "GHG Emission",
+                            unit: "tons",
+                        },
+                    ],
+                    quantity_needed_per_unit: 2,
+                    units_bought: 200,
+                    number_of_units: 300,
+                    productURL: "",
+                },
+
+                {
+                    id: "1ALWODJHQWOIDSALFKNDFlsdkfncv",
+                    slug: "adqwadasc",
+                    manufacturer: {
+                        id: 2,
+                        name: "Greenergy Oy",
+                        mainURL: "http://0.0.0.0",
+                    },
+                    name: "Green Electricity",
+                    sustainability_metrics: [
+                        {
+                            name: "CO2",
+                            value: 20,
+                            description: "GHG Emission",
+                            unit: "tons",
+                        },
+                    ],
                     quantity_needed_per_unit: 2,
                     units_bought: 200,
                     number_of_units: 300,
@@ -34,7 +67,22 @@ export default function Products() {
             },
             name: "Steel",
             number_of_units: 100,
-            co2_footprint: 20,
+            sustainability_metrics: [
+                {
+                    name: "CO2",
+                    value: 69,
+                    description: "GHG Emission",
+                    unit: "tons",
+                },
+            ],
+        },
+    ]);
+    const [metricList, setMetricList] = React.useState<MetricType[]>([
+        {
+            metric_id: "1",
+            name: "CO2",
+            unit: "tons",
+            description: "GHG Emission",
         },
     ]);
 
@@ -46,8 +94,15 @@ export default function Products() {
                 .then((data) => {
                     if (Array.isArray(data)) setProducts(data);
                 });
+            fetch(`${urlHandler(origin)}/api/sustainability-metrics/`)
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data) {
+                        if (Array.isArray(data)) setMetricList(data);
+                    }
+                });
         }
-    }, [setProducts]);
+    }, [setProducts, setMetricList]);
 
     React.useEffect(() => {
         fetchData();
@@ -72,8 +127,11 @@ export default function Products() {
                                 title={item.name}
                                 description="to be described"
                                 numberOfUnits={item.number_of_units}
-                                co2PerUnit={item.co2_footprint}
-                                id={Number(item.id)}
+                                sustainability_metrics={
+                                    item.sustainability_metrics
+                                }
+                                companyMetrics={metricList}
+                                id={item.slug}
                                 subparts={item.subparts}
                             />
                         );
@@ -87,7 +145,7 @@ export default function Products() {
                                 <Skeleton className="h-4 w-[200px]" />
                             </div>
                         }
-                        id={0}
+                        id={""}
                     />
                 )}
             </div>
