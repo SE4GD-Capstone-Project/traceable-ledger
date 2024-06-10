@@ -113,7 +113,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                         });
 
                         fetch(
-                            `${urlHandler(origin)}/api/logs/?product_id=${data.slug}&subpart_id=${material.slug}/`
+                            `${urlHandler(origin)}/api/logs/?product_id=${data.slug}&subpart_id=${material.slug}`
                         )
                             .then((res) => res.json())
                             .then((data) => {
@@ -126,7 +126,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                         headers: {
                                             "Content-Type": "application/json",
                                         },
-                                        body: JSON.stringify(data),
+                                        body: JSON.stringify(data[0]),
                                     }
                                 );
                             });
