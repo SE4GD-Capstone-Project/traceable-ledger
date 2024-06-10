@@ -117,7 +117,7 @@ class ProductSerializer(serializers.ModelSerializer):
             subpart_manufacturer, created = SubManufacturer.objects.get_or_create(**subpart_manufacturer_data)
             sustainability_metrics_data = subpart_data.pop('sustainability_metrics_input', [])
 
-            subpart = Subpart.objects.get_or_create(manufacturer=subpart_manufacturer, **subpart_data)
+            subpart, created = Subpart.objects.get_or_create(manufacturer=subpart_manufacturer, **subpart_data)
 
             for sm_data in sustainability_metrics_data:
                 metric_id = sm_data.get('metric_id')
