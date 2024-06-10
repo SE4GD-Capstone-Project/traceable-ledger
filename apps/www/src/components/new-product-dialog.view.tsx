@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
-import { urlHandler } from "@/utils/utils";
+import { getSubpartLogUrl, urlHandler } from "@/utils/utils";
 import { PreferenceContext } from "@/components/preference-context.view";
 import {
     MaterialFormValueType,
@@ -99,7 +99,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                 }),
             })
                 .then((response) => response.json())
-                .then(() => {
+                .then((data) => {
                     materialList?.forEach((material) => {
                         fetch(material.productURL + "/", {
                             method: "PATCH",
@@ -111,6 +111,25 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                     material.units_bought,
                             }),
                         });
+
+                        fetch(
+                            `${urlHandler(origin)}/api/logs/?product_id=${data.slug}&subpart_id=${material.slug}/`
+                        )
+                            .then((res) => res.json())
+                            .then((data) => {
+                                fetch(
+                                    getSubpartLogUrl(
+                                        material.manufacturer.mainURL
+                                    ),
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify(data),
+                                    }
+                                );
+                            });
                     });
                 })
                 .then(() => setShowDialog(false))

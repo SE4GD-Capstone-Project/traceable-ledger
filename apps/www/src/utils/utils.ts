@@ -39,3 +39,7 @@ export function getProductUrl(id: number | string): string | undefined {
         return `http://localhost:8000/api/products/${id}`;
     }
 }
+
+export function getSubpartLogUrl(manufacturerUrl: string): string {
+    return manufacturerUrl + ":8000/api/logs/";
+}

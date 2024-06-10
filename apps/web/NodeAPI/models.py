@@ -78,25 +78,23 @@ class SubpartSustainabilityMetric(models.Model):
 
 class TransactionLog(models.Model):
     transaction_log_id = models.AutoField(primary_key=True)
-    buyer_id = models.CharField(max_length=100) 
+    buyer_id = models.CharField(max_length=100)
+    buyer_url = models.CharField(max_length=100)
     seller_id = models.CharField(max_length=100) 
     product_id = models.CharField(max_length=100) 
     subpart_id = models.CharField(max_length=100) 
     amount = models.FloatField(max_length=100) 
     date = models.DateTimeField(auto_now=True)
-    sustainability_data_subpart = models.CharField(max_length=1000,blank=True, null=True) 
-    sustainability_data_product = models.CharField(max_length=1000,blank=True, null=True) 
     log_hash = models.CharField(max_length=100) 
     def __hash__(self) -> int: 
         return hash(( 
-            self.buyer_id,  
+            self.buyer_id,
+            self.buyer_url,
             self.seller_id,  
             self.product_id,  
             self.subpart_id,  
             self.amount, 
-            self.date, 
-            self.sustainability_data_subpart,
-            self.sustainability_data_product
+            self.date,
             ) )
      
     def save(self, *args, **kwargs):

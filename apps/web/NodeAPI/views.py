@@ -93,6 +93,9 @@ class TransactionLogViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         product_id = self.request.query_params.get('product_id')
+        subpart_id = self.request.query_params.get('subpart_id')
         if product_id:
             queryset = queryset.filter(product_id=product_id)
+        if subpart_id:
+            queryset = queryset.filter(subpart_id=subpart_id)
         return queryset

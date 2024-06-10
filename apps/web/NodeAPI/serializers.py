@@ -135,9 +135,10 @@ class ProductSerializer(serializers.ModelSerializer):
             
             TransactionLog.objects.create(
                 buyer_id=str(product.manufacturer),
+                buyer_url=str(product.manufacturer.mainURL),
                 seller_id=str(subpart.manufacturer),
-                product_id=str(product.product_id),
-                subpart_id=str(subpart.subpart_id),
+                product_id=str(product.slug),
+                subpart_id=str(subpart.slug),
                 amount=subpart.units_bought,
             )
         
@@ -182,11 +183,9 @@ class ProductSerializer(serializers.ModelSerializer):
                 TransactionLog.objects.create(
                     buyer_id=str(instance.manufacturer),
                     seller_id=str(subpart.manufacturer),
-                    product_id=str(instance.product_id),
-                    subpart_id=str(subpart.subpart_id),
+                    product_id=str(instance.slug),
+                    subpart_id=str(subpart.slug),
                     amount=subpart.units_bought,
-                    # sustainability_data_subpart= subpart.get_sustainablity_data(),
-                    # sustainability_data_product=instance.get_sustainablity_data()
                 )
 
         return instance
