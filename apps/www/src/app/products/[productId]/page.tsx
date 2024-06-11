@@ -10,30 +10,7 @@ export default function Page({ params }: { params: { productId: string } }) {
     const [productInfo, setProductInfo] = React.useState<ProductType>({
         id: "1",
         slug: "abc",
-        subparts: [
-            {
-                id: "1",
-                slug: "abc",
-                manufacturer: {
-                    id: 2,
-                    name: "Greenergy Oy",
-                    mainURL: "http://0.0.0.0",
-                },
-                name: "Green Electricity",
-                sustainability_metrics: [
-                    {
-                        name: "CO2",
-                        value: 20,
-                        description: "GHG Emission",
-                        unit: "tons",
-                    },
-                ],
-                quantity_needed_per_unit: 2,
-                units_bought: 200,
-                number_of_units: 300,
-                productURL: "",
-            },
-        ],
+        subparts: [],
         manufacturer: {
             id: 1,
             name: "Miningful Oyj",
@@ -77,7 +54,7 @@ export default function Page({ params }: { params: { productId: string } }) {
                     }
                 });
         }
-    }, [setProductInfo]);
+    }, [setProductInfo, params.productId]);
 
     React.useEffect(() => {
         fetchData();
@@ -121,7 +98,7 @@ export default function Page({ params }: { params: { productId: string } }) {
                         )}
                         <p className="mb-2">
                             <span className="font-semibold">
-                                Materials used:
+                                Materials used:{" "}
                             </span>
                             {!productInfo.subparts ||
                                 (productInfo.subparts.length === 0 && (
