@@ -241,7 +241,7 @@ export default function ProductCard(props: ProductCardProps) {
                                         className={`mb-2 ${
                                             props.subparts &&
                                             props.subparts.length > 0
-                                                ? "mt-[410px]"
+                                                ? "mt-[510px]"
                                                 : ""
                                         } flex`}
                                     >

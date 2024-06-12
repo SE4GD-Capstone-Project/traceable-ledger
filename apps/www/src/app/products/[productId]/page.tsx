@@ -17,7 +17,66 @@ export default function Page({ params }: { params: { productId: string } }) {
     const [productInfo, setProductInfo] = React.useState<ProductType>({
         id: "1",
         slug: "abc",
-        subparts: [],
+        subparts: [
+            {
+                id: "1ALWODJHQWOIDSALFKNDFlsdkfncv",
+                slug: "abcdsd",
+                manufacturer: {
+                    id: 2,
+                    name: "Greenergy Oy",
+                    mainURL: "http://0.0.0.0",
+                },
+                name: "Green Electricity",
+                sustainability_metrics: [
+                    {
+                        name: "CO2",
+                        value: 20,
+                        description: "GHG Emission",
+                        unit: "tons",
+                    },
+                    {
+                        name: "CO2",
+                        value: 20,
+                        description: "GHG Emission",
+                        unit: "tons",
+                    },
+                    {
+                        name: "CO2",
+                        value: 20,
+                        description: "GHG Emission",
+                        unit: "tons",
+                    },
+                    {
+                        name: "CO2",
+                        value: 20,
+                        description: "GHG Emission",
+                        unit: "tons",
+                    },
+                    {
+                        name: "CO2",
+                        value: 20,
+                        description: "GHG Emission",
+                        unit: "tons",
+                    },
+                    {
+                        name: "CO2",
+                        value: 20,
+                        description: "GHG Emission",
+                        unit: "tons",
+                    },
+                    {
+                        name: "CO2",
+                        value: 20,
+                        description: "GHG Emission",
+                        unit: "tons",
+                    },
+                ],
+                quantity_needed_per_unit: 2,
+                units_bought: 200,
+                number_of_units: 300,
+                productURL: "",
+            },
+        ],
         manufacturer: {
             id: 1,
             name: "Miningful Oyj",
@@ -144,7 +203,7 @@ export default function Page({ params }: { params: { productId: string } }) {
                         </p>
                         {productInfo.subparts &&
                             productInfo.subparts.length > 0 && (
-                                <div className="relative h-[380px]">
+                                <div className="relative">
                                     <div className="flex absolute w-full overflow-x-auto">
                                         {productInfo.subparts.map(
                                             (material, index) => (
@@ -173,7 +232,7 @@ export default function Page({ params }: { params: { productId: string } }) {
                             className={`mb-2 ${
                                 productInfo.subparts &&
                                 productInfo.subparts.length > 0
-                                    ? "mt-[410px]"
+                                    ? "mt-[510px]"
                                     : ""
                             } flex`}
                         >
