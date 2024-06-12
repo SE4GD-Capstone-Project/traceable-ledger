@@ -237,7 +237,14 @@ export default function ProductCard(props: ProductCardProps) {
                                             No material.
                                         </div>
                                     )}
-                                    <p className="mb-2 flex">
+                                    <p
+                                        className={`mb-2 ${
+                                            props.subparts &&
+                                            props.subparts.length > 0
+                                                ? "mt-[410px]"
+                                                : ""
+                                        } flex`}
+                                    >
                                         <span className="font-semibold">
                                             Transaction logs:
                                         </span>

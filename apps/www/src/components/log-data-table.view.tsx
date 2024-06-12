@@ -80,7 +80,7 @@ export function LogDataTable<TData, TValue>({
 
     return (
         <div>
-            <Table className="rounded-md border max-h-[40vh] overflow-y-scroll">
+            <Table className="rounded-md border max-h-[40vh] overflow-y-auto">
                 <TableHeader className={"sticky top-0 bg-white"}>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>

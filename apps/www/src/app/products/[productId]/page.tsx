@@ -5,6 +5,13 @@ import { ProductType } from "@/components/types/product.api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import MaterialCard from "@/components/material-card.view";
+import { Button } from "@/components/ui/button";
+import { PrinterIcon } from "lucide-react";
+import {
+    LogDataTable,
+    logDataTableColumns,
+} from "@/components/log-data-table.view";
+import { LogType } from "@/components/types/log.api";
 
 export default function Page({ params }: { params: { productId: string } }) {
     const [productInfo, setProductInfo] = React.useState<ProductType>({
@@ -28,6 +35,8 @@ export default function Page({ params }: { params: { productId: string } }) {
         ],
     });
     const [imageUrl, setImageUrl] = React.useState("");
+    const [logsData, setLogsData] = React.useState<LogType[]>([]);
+
     const fetchData = React.useCallback(() => {
         if (typeof window !== "undefined") {
             const origin = window.location.origin;
@@ -59,11 +68,37 @@ export default function Page({ params }: { params: { productId: string } }) {
     React.useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    React.useEffect(() => {
+        if (typeof window !== "undefined") {
+            fetch(
+                `${urlHandler(window.location.origin)}/api/logs/?subpart_id=${params.productId}`
+            )
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data) {
+                        if (Array.isArray(data)) setLogsData(data);
+                    }
+                });
+        }
+    }, [params.productId]);
+
     return (
         <>
             <Card className="w-[80vw] min-w-[600px] m-auto">
-                <CardHeader>
-                    <CardTitle>{productInfo.name}</CardTitle>
+                <CardHeader className="flex-row items-center pb-0 justify-between">
+                    <CardTitle className="flex">{productInfo.name}</CardTitle>
+                    <Button
+                        className="mt-0 gap-2"
+                        variant="secondary"
+                        onClick={() => {
+                            if (typeof window !== "undefined") {
+                                window.print();
+                            }
+                        }}
+                    >
+                        Print <PrinterIcon width={16} height={16} />
+                    </Button>
                 </CardHeader>
                 <CardContent>
                     <div>
@@ -134,6 +169,22 @@ export default function Page({ params }: { params: { productId: string } }) {
                                     </div>
                                 </div>
                             )}
+                        <p
+                            className={`mb-2 ${
+                                productInfo.subparts &&
+                                productInfo.subparts.length > 0
+                                    ? "mt-[410px]"
+                                    : ""
+                            } flex`}
+                        >
+                            <span className="font-semibold">
+                                Transaction logs:
+                            </span>
+                        </p>
+                        <LogDataTable
+                            columns={logDataTableColumns()}
+                            data={logsData}
+                        />
                     </div>
                 </CardContent>
             </Card>
