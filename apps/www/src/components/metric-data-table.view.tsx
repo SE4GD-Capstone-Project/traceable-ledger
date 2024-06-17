@@ -16,9 +16,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "./ui/button";
 import { MetricType } from "@/components/types/metric.api";
-import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -26,10 +24,10 @@ interface DataTableProps<TData, TValue> {
 }
 
 export const metricDataTableColumns = (
-    onEdit?: (metricId?: string) => void,
-    onDelete?: (metricId?: string) => void
+    EditDialog?: (props: { metric: MetricType }) => React.JSX.Element,
+    deleteDialog?: (metricId?: string) => React.JSX.Element
 ): ColumnDef<MetricType>[] => {
-    let columns: ColumnDef<MetricType>[] = [
+    return [
         {
             accessorKey: "name",
             header: "Name",
@@ -49,24 +47,13 @@ export const metricDataTableColumns = (
             cell: ({ row }) => {
                 return (
                     <div className="flex gap-4">
-                        <Button
-                            className="bg-blue-500 hover:bg-blue-700"
-                            onClick={() => onEdit?.(row.original.metric_id)}
-                        >
-                            <Pencil2Icon />
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={() => onDelete?.(row.original.metric_id)}
-                        >
-                            <TrashIcon />
-                        </Button>
+                        {EditDialog && <EditDialog metric={row.original} />}
+                        {deleteDialog?.(row.original.metric_id)}
                     </div>
                 );
             },
         },
     ];
-    return columns;
 };
 
 export function MetricDataTable<TData, TValue>({
