@@ -290,7 +290,7 @@ export default function MetricsPage() {
             return (
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="destructive">
+                        <Button variant="destructive" title="Delete metric">
                             <TrashIcon />
                         </Button>
                     </DialogTrigger>

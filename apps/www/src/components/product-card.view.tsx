@@ -163,6 +163,11 @@ export default function ProductCard(props: ProductCardProps) {
                                                     onClick={
                                                         handleCopyUrlButtonClick
                                                     }
+                                                    title={
+                                                        isCopyButtonClicked
+                                                            ? "Copied"
+                                                            : "Copy"
+                                                    }
                                                 >
                                                     {isCopyButtonClicked ? (
                                                         <CheckIcon />
