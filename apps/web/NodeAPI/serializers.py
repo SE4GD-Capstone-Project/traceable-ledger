@@ -1,3 +1,4 @@
+import hashlib
 from rest_framework import serializers
 from .models import Product, Subpart, ProductSubpart,SubManufacturer, SustainabilityMetric, ProductSustainabilityMetric, SubpartSustainabilityMetric
 from django.db import transaction
@@ -74,12 +75,18 @@ class ProductSerializer(serializers.ModelSerializer):
     sustainability_metrics = ProductSustainabilityMetricSerializer(many=True, read_only=True)
     sustainability_metrics_input = serializers.ListField(child=serializers.DictField(), write_only=True)
     manufacturer = SubManufacturerSerializer()
+
     class Meta:
         model = Product
         fields = '__all__'
 
+    def get_hashed_id(self, obj):
+        return hashlib.sha256(str(obj.product_id).encode()).hexdigest()
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        hashed_id = self.get_hashed_id(instance)
+        representation['product_id'] = hashed_id
         if "sustainability_metrics" not in representation:
             representation["sustainability_metrics"] = ProductSustainabilityMetricSerializer(instance.sustainability_metrics.all(), many=True).data
         return representation
