@@ -1,9 +1,4 @@
-# Dockerize Django with Nextjs
-
-A Bootstrapped Template of Django(python) with Nextjs using Docker!
-
-### Youtube Video: [Link](https://www.youtube.com/watch?v=ettHsKT2z9I)
-
+## [LUT University SE4GD x Solita] Sustainable Products Traceable Ledger Project
 ## 📚 Stack
 
 - [Next Js](https://www.nextjs.org/) - The React  Framework  for the Web.
@@ -11,14 +6,6 @@ A Bootstrapped Template of Django(python) with Nextjs using Docker!
 - [Typescript](https://www.typescriptlang.org/) - JavaScript with syntax for types.
 - [Docker](https://www.docker.com/)  - Docker is a platform designed to help developers build, share, and run modern applications. We handle the tedious setup, so you can focus on the code.
 - [Nginx](https://www.nginx.com/) - Advanced Load Balancer, Web Server, & Reverse Proxy.
-
-  ## 📸 Screenshots:
-- Frontend:
-<img src=".github/static/www.png" alt="Webpage"/> 
-
-- Backend:
-<img src=".github/static/web.png" alt="Backend"/> 
-
 
 ## 📁 Project structure
 
@@ -44,9 +31,9 @@ $PROJECT_ROOT
 - Clone Repo
 
 ```bash
-mkdir dockerize-django-with-nextjs
-cd dockerize-django-with-nextjs
-git clone https://github.com/codingforinnovations/dockerize-django-with-nextjs .
+mkdir traceable-ledger
+cd traceable-ledger
+git clone https://github.com/SE4GD-Capstone-Project/traceable-ledger .
 ```
 - Using Docker
 
