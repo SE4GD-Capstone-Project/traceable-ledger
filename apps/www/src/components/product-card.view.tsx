@@ -20,15 +20,22 @@ import {
     SheetTrigger,
 } from "./ui/sheet";
 import { Pencil2Icon, CheckIcon, CopyIcon } from "@radix-ui/react-icons";
-import { getProductUrl, imagesUrlHandler } from "@/utils/utils";
+import { getProductUrl, imagesUrlHandler, urlHandler } from "@/utils/utils";
 import { ProductCardProps } from "./types/product.api";
 import MaterialCard from "@/components/material-card.view";
 import { PreferenceContext } from "@/components/preference-context.view";
+import { LogType } from "@/components/types/log.api";
+import {
+    LogDataTable,
+    logDataTableColumns,
+} from "@/components/log-data-table.view";
 
 export default function ProductCard(props: ProductCardProps) {
     const { theme } = React.useContext(PreferenceContext);
     const [isCopyButtonClicked, setIsCopyButtonClicked] = React.useState(false);
     const [imageUrl, setImageUrl] = React.useState("");
+    const [logsData, setLogsData] = React.useState<LogType[]>([]);
+
     const handleCopyUrlButtonClick = React.useCallback(() => {
         setIsCopyButtonClicked(true);
         navigator.clipboard.writeText(getProductUrl(props.id) ?? "");
@@ -50,6 +57,20 @@ export default function ProductCard(props: ProductCardProps) {
         };
         fetchData();
     }, [setImageUrl, props.title]);
+
+    React.useEffect(() => {
+        if (typeof window !== "undefined") {
+            fetch(
+                `${urlHandler(window.location.origin)}/api/logs/?subpart_id=${props.id}`
+            )
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data) {
+                        if (Array.isArray(data)) setLogsData(data);
+                    }
+                });
+        }
+    }, [props.id]);
 
     React.useEffect(() => {
         if (isCopyButtonClicked) {
@@ -142,6 +163,11 @@ export default function ProductCard(props: ProductCardProps) {
                                                     onClick={
                                                         handleCopyUrlButtonClick
                                                     }
+                                                    title={
+                                                        isCopyButtonClicked
+                                                            ? "Copied"
+                                                            : "Copy"
+                                                    }
                                                 >
                                                     {isCopyButtonClicked ? (
                                                         <CheckIcon />
@@ -183,10 +209,11 @@ export default function ProductCard(props: ProductCardProps) {
                                             Materials used:
                                         </span>
                                     </p>
-                                    <div className="relative">
-                                        <div className="flex absolute w-full overflow-x-auto">
-                                            {props.subparts &&
-                                                props.subparts.map(
+                                    {props.subparts &&
+                                    props.subparts.length > 0 ? (
+                                        <div className="relative">
+                                            <div className="flex absolute w-full overflow-x-auto">
+                                                {props.subparts.map(
                                                     (material, index) => (
                                                         <MaterialCard
                                                             key={index}
@@ -208,8 +235,29 @@ export default function ProductCard(props: ProductCardProps) {
                                                         />
                                                     )
                                                 )}
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="w-full border-4 mb-8 border-primary/30 border-dashed p-4 text-center text-primary/50 rounded-xl">
+                                            No material.
+                                        </div>
+                                    )}
+                                    <p
+                                        className={`mb-2 ${
+                                            props.subparts &&
+                                            props.subparts.length > 0
+                                                ? "mt-[510px]"
+                                                : ""
+                                        } flex`}
+                                    >
+                                        <span className="font-semibold">
+                                            Transaction logs:
+                                        </span>
+                                    </p>
+                                    <LogDataTable
+                                        columns={logDataTableColumns()}
+                                        data={logsData}
+                                    />
                                 </div>
                             </div>
                             <SheetFooter className="mt-2">

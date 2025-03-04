@@ -124,7 +124,7 @@ class ProductSerializer(serializers.ModelSerializer):
             subpart_manufacturer, created = SubManufacturer.objects.get_or_create(**subpart_manufacturer_data)
             sustainability_metrics_data = subpart_data.pop('sustainability_metrics_input', [])
 
-            subpart = Subpart.objects.create(manufacturer=subpart_manufacturer, **subpart_data)
+            subpart, created = Subpart.objects.get_or_create(manufacturer=subpart_manufacturer, **subpart_data)
 
             for sm_data in sustainability_metrics_data:
                 metric_id = sm_data.get('metric_id')
@@ -142,9 +142,10 @@ class ProductSerializer(serializers.ModelSerializer):
             
             TransactionLog.objects.create(
                 buyer_id=str(product.manufacturer),
+                buyer_url=str(product.manufacturer.mainURL),
                 seller_id=str(subpart.manufacturer),
-                product_id=str(product.product_id),
-                subpart_id=str(subpart.subpart_id),
+                product_id=str(product.slug),
+                subpart_id=str(subpart.slug),
                 amount=subpart.units_bought,
             )
         
@@ -189,11 +190,9 @@ class ProductSerializer(serializers.ModelSerializer):
                 TransactionLog.objects.create(
                     buyer_id=str(instance.manufacturer),
                     seller_id=str(subpart.manufacturer),
-                    product_id=str(instance.product_id),
-                    subpart_id=str(subpart.subpart_id),
+                    product_id=str(instance.slug),
+                    subpart_id=str(subpart.slug),
                     amount=subpart.units_bought,
-                    # sustainability_data_subpart= subpart.get_sustainablity_data(),
-                    # sustainability_data_product=instance.get_sustainablity_data()
                 )
 
         return instance

@@ -30,23 +30,36 @@ export default function Products() {
                             description: "GHG Emission",
                             unit: "tons",
                         },
-                    ],
-                    quantity_needed_per_unit: 2,
-                    units_bought: 200,
-                    number_of_units: 300,
-                    productURL: "",
-                },
-
-                {
-                    id: "1ALWODJHQWOIDSALFKNDFlsdkfncv",
-                    slug: "adqwadasc",
-                    manufacturer: {
-                        id: 2,
-                        name: "Greenergy Oy",
-                        mainURL: "http://0.0.0.0",
-                    },
-                    name: "Green Electricity",
-                    sustainability_metrics: [
+                        {
+                            name: "CO2",
+                            value: 20,
+                            description: "GHG Emission",
+                            unit: "tons",
+                        },
+                        {
+                            name: "CO2",
+                            value: 20,
+                            description: "GHG Emission",
+                            unit: "tons",
+                        },
+                        {
+                            name: "CO2",
+                            value: 20,
+                            description: "GHG Emission",
+                            unit: "tons",
+                        },
+                        {
+                            name: "CO2",
+                            value: 20,
+                            description: "GHG Emission",
+                            unit: "tons",
+                        },
+                        {
+                            name: "CO2",
+                            value: 20,
+                            description: "GHG Emission",
+                            unit: "tons",
+                        },
                         {
                             name: "CO2",
                             value: 20,

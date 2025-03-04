@@ -25,6 +25,17 @@ import {
     MetricDataTable,
     metricDataTableColumns,
 } from "@/components/metric-data-table.view";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 
 export default function MetricsPage() {
     const [newMetricInfo, setNewMetricInfo] = React.useState<MetricType>({
@@ -32,6 +43,7 @@ export default function MetricsPage() {
         unit: "",
         description: "",
     });
+
     const [metricList, setMetricList] = React.useState<MetricType[]>([]);
 
     const handleClearMetricButtonClick = React.useCallback(() => {
@@ -80,6 +92,233 @@ export default function MetricsPage() {
             });
         }
     }, [newMetricInfo, handleClearMetricButtonClick, fetchData]);
+
+    const handleUpdateMetricButtonClick = React.useCallback(
+        (metric: MetricType) => {
+            console.log(metric);
+            if (typeof window !== "undefined" && !!metric.metric_id) {
+                const origin = window.location.origin;
+                fetch(
+                    `${urlHandler(origin)}/api/sustainability-metrics/${metric.metric_id}/`,
+                    {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            name: metric.name,
+                            unit: metric.unit,
+                            description: metric.description,
+                        }),
+                    }
+                ).then(() => {
+                    const currentDateTime = new Date().toLocaleString("en-US", {
+                        weekday: "long", // "Monday" to "Sunday"
+                        year: "numeric", // "2023"
+                        month: "long", // "January" to "December"
+                        day: "numeric", // "1" to "31"
+                        hour: "numeric", // "1" to "12" AM/PM
+                        minute: "numeric", // "00" to "59"
+                        hour12: true, // Use 12-hour format
+                    });
+                    toast("Metric has been updated successfully.", {
+                        description: currentDateTime,
+                    });
+                    fetchData();
+                });
+            }
+        },
+        [fetchData]
+    );
+
+    const handleDeleteMetricButtonClick = React.useCallback(
+        (metricId?: string) => {
+            if (typeof window !== "undefined" && !!metricId) {
+                const origin = window.location.origin;
+                fetch(
+                    `${urlHandler(origin)}/api/sustainability-metrics/${metricId}/`,
+                    {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                    }
+                ).then(() => {
+                    const currentDateTime = new Date().toLocaleString("en-US", {
+                        weekday: "long", // "Monday" to "Sunday"
+                        year: "numeric", // "2023"
+                        month: "long", // "January" to "December"
+                        day: "numeric", // "1" to "31"
+                        hour: "numeric", // "1" to "12" AM/PM
+                        minute: "numeric", // "00" to "59"
+                        hour12: true, // Use 12-hour format
+                    });
+                    toast("Metric has been deleted successfully.", {
+                        description: currentDateTime,
+                    });
+                    fetchData();
+                });
+            }
+        },
+        [fetchData]
+    );
+
+    const EditMetricDialog = (props: { metric: MetricType }) => {
+        const { metric } = props;
+        const [updateMetricInfo, setUpdateMetricInfo] =
+            React.useState<MetricType>({
+                name: metric.name ?? "",
+                unit: metric?.unit ?? "",
+                description: metric?.description ?? "",
+            });
+
+        return (
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button
+                        className="bg-blue-500 hover:bg-blue-700"
+                        title="Edit metric"
+                    >
+                        <Pencil2Icon />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit metric</DialogTitle>
+                        <DialogDescription>
+                            Make changes to the metric here. Click save when you
+                            are done.
+                        </DialogDescription>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="name" className="text-right">
+                                    Name
+                                </Label>
+                                <Input
+                                    id="name"
+                                    className="col-span-3"
+                                    placeholder="Example: CO2"
+                                    onChange={(event) => {
+                                        setUpdateMetricInfo({
+                                            ...updateMetricInfo,
+                                            name: event.target.value,
+                                        });
+                                    }}
+                                    value={updateMetricInfo.name}
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="unit" className="text-right">
+                                    Unit
+                                </Label>
+                                <Input
+                                    id="unit"
+                                    className="col-span-3"
+                                    onChange={(event) => {
+                                        setUpdateMetricInfo({
+                                            ...updateMetricInfo,
+                                            unit: event.target.value,
+                                        });
+                                    }}
+                                    value={updateMetricInfo.unit}
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label
+                                    htmlFor="description"
+                                    className="text-right"
+                                >
+                                    Description
+                                </Label>
+                                <Textarea
+                                    id="description"
+                                    placeholder="Example: GHG Emissions equivalent"
+                                    className="resize-none col-span-3"
+                                    onChange={(event) => {
+                                        setUpdateMetricInfo({
+                                            ...updateMetricInfo,
+                                            description: event.target.value,
+                                        });
+                                    }}
+                                    value={updateMetricInfo.description}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant={"ghost"}>Cancel</Button>
+                            </DialogClose>
+                            {updateMetricInfo.name !== "" &&
+                            updateMetricInfo.unit !== "" &&
+                            updateMetricInfo.description !== "" ? (
+                                <Button
+                                    className="col-span-1"
+                                    onClick={() =>
+                                        handleUpdateMetricButtonClick({
+                                            ...updateMetricInfo,
+                                            metric_id: metric.metric_id,
+                                        })
+                                    }
+                                >
+                                    Update metric
+                                </Button>
+                            ) : (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <Button
+                                                className="col-span-1"
+                                                disabled={true}
+                                            >
+                                                Update metric
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            Please fill in all required fields!
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            )}
+                        </DialogFooter>
+                    </DialogHeader>
+                </DialogContent>
+            </Dialog>
+        );
+    };
+
+    const deleteMetricDialog = React.useCallback(
+        (metricId?: string) => {
+            return (
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="destructive" title="Delete metric">
+                            <TrashIcon />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Delete metric</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to delete this metric?
+                                This metric from all of your product will also
+                                be deleted permanently.
+                            </DialogDescription>
+                            <DialogFooter>
+                                <Button
+                                    className="col-span-1"
+                                    onClick={() =>
+                                        handleDeleteMetricButtonClick(metricId)
+                                    }
+                                >
+                                    Delete metric
+                                </Button>
+                            </DialogFooter>
+                        </DialogHeader>
+                    </DialogContent>
+                </Dialog>
+            );
+        },
+        [handleDeleteMetricButtonClick]
+    );
 
     React.useEffect(() => {
         fetchData();
@@ -200,7 +439,10 @@ export default function MetricsPage() {
                 <CardContent>
                     <MetricDataTable
                         data={metricList}
-                        columns={metricDataTableColumns()}
+                        columns={metricDataTableColumns(
+                            EditMetricDialog,
+                            deleteMetricDialog
+                        )}
                     />
                 </CardContent>
             </Card>

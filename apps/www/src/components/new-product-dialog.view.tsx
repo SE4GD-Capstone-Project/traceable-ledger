@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@radix-ui/react-icons";
-import { urlHandler } from "@/utils/utils";
+import { getSubpartLogUrl, urlHandler } from "@/utils/utils";
 import { PreferenceContext } from "@/components/preference-context.view";
 import {
     MaterialFormValueType,
@@ -99,7 +99,7 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                 }),
             })
                 .then((response) => response.json())
-                .then(() => {
+                .then((data) => {
                     materialList?.forEach((material) => {
                         fetch(material.productURL + "/", {
                             method: "PATCH",
@@ -111,6 +111,26 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                     material.units_bought,
                             }),
                         });
+
+                        fetch(
+                            `${urlHandler(origin)}/api/logs/?product_id=${data.slug}&subpart_id=${material.slug}`
+                        )
+                            .then((res) => res.json())
+                            .then((data) => {
+                                delete data[0].transaction_log_id;
+                                fetch(
+                                    getSubpartLogUrl(
+                                        material.manufacturer.mainURL
+                                    ),
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify(data[0]),
+                                    }
+                                );
+                            });
                     });
                 })
                 .then(() => setShowDialog(false))
@@ -472,25 +492,29 @@ export default function NewProductDialog(props: { onCreateProduct(): void }) {
                                 </TooltipProvider>
                             )}
                         </div>
-                        {materialList.length === 0 && (
+                        {materialList.length === 0 ? (
                             <div className="w-full border-4 border-primary/30 border-dashed p-4 text-center text-primary/50 rounded-xl">
                                 No material.
                             </div>
-                        )}
-                        <div className="relative h-[380px]">
-                            <div className="flex absolute w-full overflow-x-auto">
-                                {materialList.map((material, index) => (
-                                    <MaterialCard
-                                        {...material}
-                                        key={index}
-                                        onCardDelete={handleMaterialDelete}
-                                        first={index === 0}
-                                        last={index === materialList.length - 1}
-                                        two={materialList.length === 2}
-                                    />
-                                ))}
+                        ) : (
+                            <div className="relative h-[380px]">
+                                <div className="flex absolute w-full overflow-x-auto">
+                                    {materialList.map((material, index) => (
+                                        <MaterialCard
+                                            {...material}
+                                            key={index}
+                                            onCardDelete={handleMaterialDelete}
+                                            first={index === 0}
+                                            last={
+                                                index ===
+                                                materialList.length - 1
+                                            }
+                                            two={materialList.length === 2}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                     <DialogFooter>
                         {productInfo.name !== "" &&

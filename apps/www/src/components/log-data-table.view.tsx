@@ -16,50 +16,62 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { MetricType } from "@/components/types/metric.api";
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
+import { LogType } from "@/components/types/log.api";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
 }
-
-export const metricDataTableColumns = (
-    EditDialog?: (props: { metric: MetricType }) => React.JSX.Element,
-    deleteDialog?: (metricId?: string) => React.JSX.Element
-): ColumnDef<MetricType>[] => {
+export const logDataTableColumns = (): ColumnDef<LogType>[] => {
     return [
         {
-            accessorKey: "name",
-            header: "Name",
+            accessorKey: "buyer_id",
+            header: "Buyer name",
         },
         {
-            accessorKey: "unit",
-            header: "Unit",
-        },
-        {
-            accessorKey: "description",
-            header: "Description",
-        },
-        {
-            id: "actions",
-            header: "Actions",
-            enablePinning: true,
+            id: "productURL",
+            header: "Product URL",
             cell: ({ row }) => {
+                let url =
+                    row.original.buyer_url +
+                    "/products/" +
+                    row.original.product_id;
+
                 return (
-                    <div className="flex gap-4">
-                        {EditDialog && <EditDialog metric={row.original} />}
-                        {deleteDialog?.(row.original.metric_id)}
-                    </div>
+                    <a
+                        href={url}
+                        className={
+                            "text-blue-400 underline flex items-center gap-1 w-fit"
+                        }
+                    >
+                        {url} <ExternalLinkIcon />
+                    </a>
                 );
             },
+        },
+        {
+            accessorKey: "amount",
+            header: "Units bought",
+        },
+        {
+            accessorKey: "date",
+            header: "Date created",
+            cell: ({ row }) => {
+                return new Date(row.original.date).toDateString();
+            },
+        },
+        {
+            accessorKey: "log_hash",
+            header: "Transaction log",
         },
     ];
 };
 
-export function MetricDataTable<TData, TValue>({
-    data,
+export function LogDataTable<TData, TValue>({
     columns,
-}: DataTableProps<MetricType, TValue>) {
+    data,
+}: DataTableProps<LogType, TValue>) {
     const table = useReactTable({
         data,
         columns,
@@ -68,7 +80,7 @@ export function MetricDataTable<TData, TValue>({
 
     return (
         <div>
-            <Table className="rounded-md border max-h-[40vh] overflow-y-scroll">
+            <Table className="rounded-md border max-h-[40vh] overflow-y-auto">
                 <TableHeader className={"sticky top-0 bg-white"}>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>

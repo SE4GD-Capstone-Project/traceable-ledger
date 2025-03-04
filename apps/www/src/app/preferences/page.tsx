@@ -81,12 +81,14 @@ export default function Home() {
                                     size="icon"
                                     variant="secondary"
                                     onClick={handleCompanyNameUnchange}
+                                    title="Cancel"
                                 >
                                     <Cross1Icon />
                                 </Button>
                                 <Button
                                     size="icon"
                                     onClick={handleCompanyNameChange}
+                                    title="Save"
                                 >
                                     <CheckIcon />
                                 </Button>
@@ -109,6 +111,7 @@ export default function Home() {
                                     onClick={() => {
                                         setIsInNameEditMode(true);
                                     }}
+                                    title="Edit"
                                 >
                                     <Pencil2Icon />
                                 </Button>

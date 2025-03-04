@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { imagesUrlHandler } from "@/utils/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { Label } from "@/components/ui/label";
 
 export default function MaterialCard(props: MaterialCardProps) {
     const [imageUrl, setImageUrl] = React.useState("");
@@ -43,7 +44,7 @@ export default function MaterialCard(props: MaterialCardProps) {
 
     return (
         <Card
-            className={`flex-1 w-fit max-w-[380px] rounded-2xl border-2 border-primary/20 ${props.first && !props.last ? "rounded-r-lg border-r-0" : ""} ${!props.first && props.last ? "rounded-l-lg border-l-0" : ""} ${!props.first && !props.last ? "rounded-lg border-x-4" : ""}`}
+            className={`flex-1 w-fit max-w-[400px] rounded-2xl border-2 border-primary/20 ${props.first && !props.last ? "rounded-r-lg border-r-0" : ""} ${!props.first && props.last ? "rounded-l-lg border-l-0" : ""} ${!props.first && !props.last ? "rounded-lg border-x-4" : ""}`}
             style={
                 !props.first && !props.last
                     ? { borderRightStyle: "dashed", borderLeftStyle: "dashed" }
@@ -96,19 +97,34 @@ export default function MaterialCard(props: MaterialCardProps) {
                         <span className="font-semibold">Total: </span>
                         {props.units_bought}
                     </p>
-                    {props.sustainability_metrics?.map((metric, index) => {
-                        return (
-                            <p key={index}>
-                                <span className="font-semibold">
-                                    {metric.name} per Unit ({metric.unit}):
-                                </span>{" "}
-                                <a>{metric.value}</a>{" "}
-                                <ArrowRightIcon className="inline" />{" "}
-                                <span className="font-semibold">Total: </span>
-                                {props.units_bought * metric.value}
-                            </p>
-                        );
-                    })}
+                    <div className="grid grid-cols-2 items-center gap-4 my-2">
+                        <Label
+                            htmlFor="co2-per-unit"
+                            className="col-span-1 border-2 p-2 border-dashed border-primary/30 rounded-md"
+                        >
+                            Sustainability metrics{" "}
+                        </Label>
+                        <a className="col-span-1 bg-primary/20 w-full h-[2px]">
+                            {" "}
+                        </a>
+                    </div>
+                    <div className="h-[70px] w-full overflow-auto">
+                        {props.sustainability_metrics?.map((metric, index) => {
+                            return (
+                                <p key={index}>
+                                    <span className="font-semibold">
+                                        {metric.name} per Unit ({metric.unit}):
+                                    </span>{" "}
+                                    <a>{metric.value}</a>{" "}
+                                    <ArrowRightIcon className="inline" />{" "}
+                                    <span className="font-semibold">
+                                        Total:{" "}
+                                    </span>
+                                    {props.units_bought * metric.value}
+                                </p>
+                            );
+                        })}
+                    </div>
                 </div>
             </CardContent>
             {props.onCardDelete && (
